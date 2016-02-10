@@ -1,3 +1,19 @@
+<#--
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+-->
+
 <#assign aui = PortletJspTagLibs["/META-INF/aui.tld"] />
 <#assign liferay_portlet = PortletJspTagLibs["/META-INF/liferay-portlet-ext.tld"] />
 <#assign liferay_ui = PortletJspTagLibs["/META-INF/liferay-ui.tld"] />
@@ -7,7 +23,7 @@
 
 <#if !trackingContentEnabled >
 	<div class="alert alert-error">
-		<strong><@liferay_ui["message"] key="this-tracking-action-will-not-work-properly-because-content-tracking-is-not-enabled" /></strong>
+		<strong><@liferay_ui["message"] key="this-metric-will-not-work-properly-because-content-tracking-is-not-enabled" /></strong>
 
 		<#assign enableLocationPortalLabel = languageUtil.get(locale, "portal-settings-content-targeting-analytics") />
 
@@ -27,7 +43,7 @@
 	</div>
 </#if>
 
-<@aui["input"] helpMessage="alias-help" label="alias" name="{ct_field_guid}alias" type="text" value=alias>
+<@aui["input"] helpMessage="name-help" label="name" name="{ct_field_guid}alias" type="text" value=alias>
 	<@aui["validator"] name="required" />
 </@>
 
@@ -71,14 +87,14 @@
 </div>
 
 <#if eventTypes?has_content && (eventTypes?size > 1)>
-	<@aui["select"] label="tracking-action" name="{ct_field_guid}eventType">
+	<@aui["select"] label="event-type" name="{ct_field_guid}eventType">
 		<#list eventTypes as curEventType>
 			<@aui["option"] label="${curEventType}" selected=(eventType == curEventType) value=curEventType />
 		</#list>
 	</@>
 <#else>
 	<#list eventTypes as curEventType>
-		<@aui["input"] disabled=true label="tracking-action" name="{ct_field_guid}eventType" type="text" value=curEventType />
+		<@aui["input"] disabled=true label="event-type" name="{ct_field_guid}eventType" type="text" value=curEventType />
 	</#list>
 </#if>
 

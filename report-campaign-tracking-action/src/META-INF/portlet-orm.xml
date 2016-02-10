@@ -10,7 +10,9 @@
 	<mapped-superclass class="com.liferay.content.targeting.report.campaign.tracking.action.model.impl.CTActionModelImpl">
 		<attributes>
 			<id name="CTActionId" />
+			<basic name="companyId" />
 			<basic name="campaignId" />
+			<basic name="reportInstanceId" />
 			<basic name="userSegmentId" />
 			<basic name="alias">
 				<column name="ALIAS_" />
@@ -31,7 +33,9 @@
 	<mapped-superclass class="com.liferay.content.targeting.report.campaign.tracking.action.model.impl.CTActionTotalModelImpl">
 		<attributes>
 			<id name="CTActionTotalId" />
+			<basic name="companyId" />
 			<basic name="campaignId" />
+			<basic name="reportInstanceId" />
 			<basic name="alias">
 				<column name="ALIAS_" />
 			</basic>

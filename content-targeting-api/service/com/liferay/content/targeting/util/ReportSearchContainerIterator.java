@@ -14,12 +14,13 @@
 
 package com.liferay.content.targeting.util;
 
-import com.liferay.content.targeting.api.model.Report;
-import com.liferay.content.targeting.api.model.ReportsRegistry;
+import com.liferay.content.targeting.model.ReportInstance;
+import com.liferay.content.targeting.service.ReportInstanceLocalService;
 import com.liferay.osgi.util.service.ServiceTrackerUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.List;
 
@@ -32,27 +33,45 @@ import org.osgi.framework.FrameworkUtil;
  * @author Eduardo Garcia
  */
 public class ReportSearchContainerIterator
-	extends SearchContainerIterator<Report> {
+	extends SearchContainerIterator<ReportInstance> {
 
+	/**
+	 * @deprecated As of Audience Targeting 2.0, replaced by {@link
+	 *             #ReportSearchContainerIterator(long, String, String, long)}
+	 */
 	public ReportSearchContainerIterator(
 			long groupId, String keywords, String className)
+		throws PortletException {
+
+		this(groupId, keywords, className, 0);
+	}
+
+	public ReportSearchContainerIterator(
+			long groupId, String keywords, String className, long classPK)
 		throws PortletException {
 
 		super(groupId, keywords);
 
 		_className = className;
+		_classPK = classPK;
 
 		Bundle bundle = FrameworkUtil.getBundle(getClass());
 
-		_reportsRegistry = ServiceTrackerUtil.getService(
-			ReportsRegistry.class, bundle.getBundleContext());
+		_reportInstanceLocalService = ServiceTrackerUtil.getService(
+			ReportInstanceLocalService.class, bundle.getBundleContext());
 	}
 
 	@Override
-	public List<Report> getResults(int start, int end)
+	public List<ReportInstance> getResults(int start, int end)
 		throws PortalException, SystemException {
 
-		return ListUtil.subList(getResults(), start, end);
+		if (Validator.isBlank(keywords)) {
+			return _reportInstanceLocalService.getReportInstances(
+				_className, _classPK, start, end);
+		}
+
+		return _reportInstanceLocalService.searchReportInstances(
+			groupId, _className, _classPK, keywords, start, end);
 	}
 
 	@Override
@@ -60,11 +79,14 @@ public class ReportSearchContainerIterator
 		return getResults().size();
 	}
 
-	protected List<Report> getResults() {
-		return ListUtil.fromMapValues(_reportsRegistry.getReports(_className));
+	protected List<ReportInstance> getResults()
+		throws PortalException, SystemException {
+
+		return getResults(QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
 
 	private String _className;
-	private ReportsRegistry _reportsRegistry;
+	private long _classPK;
+	private ReportInstanceLocalService _reportInstanceLocalService;
 
 }

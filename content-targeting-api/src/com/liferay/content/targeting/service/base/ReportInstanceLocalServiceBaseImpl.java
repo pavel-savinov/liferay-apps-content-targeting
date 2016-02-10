@@ -16,10 +16,13 @@ package com.liferay.content.targeting.service.base;
 
 import com.liferay.content.targeting.model.ReportInstance;
 import com.liferay.content.targeting.service.ReportInstanceLocalService;
+import com.liferay.content.targeting.service.persistence.AnonymousUserUserSegmentPersistence;
 import com.liferay.content.targeting.service.persistence.CampaignFinder;
 import com.liferay.content.targeting.service.persistence.CampaignPersistence;
+import com.liferay.content.targeting.service.persistence.ChannelInstancePersistence;
 import com.liferay.content.targeting.service.persistence.ReportInstancePersistence;
 import com.liferay.content.targeting.service.persistence.RuleInstancePersistence;
+import com.liferay.content.targeting.service.persistence.TacticPersistence;
 import com.liferay.content.targeting.service.persistence.TrackingActionInstancePersistence;
 import com.liferay.content.targeting.service.persistence.UserSegmentPersistence;
 
@@ -38,6 +41,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalServiceImpl;
 import com.liferay.portal.service.PersistedModelLocalServiceRegistryUtil;
+import com.liferay.portal.service.persistence.GroupPersistence;
 import com.liferay.portal.service.persistence.UserPersistence;
 
 import java.io.Serializable;
@@ -223,6 +227,35 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the report instance with the matching UUID and company.
+	 *
+	 * @param uuid the report instance's UUID
+	 * @param  companyId the primary key of the company
+	 * @return the matching report instance, or <code>null</code> if a matching report instance could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public ReportInstance fetchReportInstanceByUuidAndCompanyId(String uuid,
+		long companyId) throws SystemException {
+		return reportInstancePersistence.fetchByUuid_C_First(uuid, companyId,
+			null);
+	}
+
+	/**
+	 * Returns the report instance matching the UUID and group.
+	 *
+	 * @param uuid the report instance's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching report instance, or <code>null</code> if a matching report instance could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public ReportInstance fetchReportInstanceByUuidAndGroupId(String uuid,
+		long groupId) throws SystemException {
+		return reportInstancePersistence.fetchByUUID_G(uuid, groupId);
+	}
+
+	/**
 	 * Returns the report instance with the primary key.
 	 *
 	 * @param reportInstanceId the primary key of the report instance
@@ -240,6 +273,37 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException, SystemException {
 		return reportInstancePersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	/**
+	 * Returns the report instance with the matching UUID and company.
+	 *
+	 * @param uuid the report instance's UUID
+	 * @param  companyId the primary key of the company
+	 * @return the matching report instance
+	 * @throws PortalException if a matching report instance could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public ReportInstance getReportInstanceByUuidAndCompanyId(String uuid,
+		long companyId) throws PortalException, SystemException {
+		return reportInstancePersistence.findByUuid_C_First(uuid, companyId,
+			null);
+	}
+
+	/**
+	 * Returns the report instance matching the UUID and group.
+	 *
+	 * @param uuid the report instance's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching report instance
+	 * @throws PortalException if a matching report instance could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public ReportInstance getReportInstanceByUuidAndGroupId(String uuid,
+		long groupId) throws PortalException, SystemException {
+		return reportInstancePersistence.findByUUID_G(uuid, groupId);
 	}
 
 	/**
@@ -283,6 +347,63 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	public ReportInstance updateReportInstance(ReportInstance reportInstance)
 		throws SystemException {
 		return reportInstancePersistence.update(reportInstance);
+	}
+
+	/**
+	 * Returns the anonymous user user segment local service.
+	 *
+	 * @return the anonymous user user segment local service
+	 */
+	public com.liferay.content.targeting.service.AnonymousUserUserSegmentLocalService getAnonymousUserUserSegmentLocalService() {
+		return anonymousUserUserSegmentLocalService;
+	}
+
+	/**
+	 * Sets the anonymous user user segment local service.
+	 *
+	 * @param anonymousUserUserSegmentLocalService the anonymous user user segment local service
+	 */
+	public void setAnonymousUserUserSegmentLocalService(
+		com.liferay.content.targeting.service.AnonymousUserUserSegmentLocalService anonymousUserUserSegmentLocalService) {
+		this.anonymousUserUserSegmentLocalService = anonymousUserUserSegmentLocalService;
+	}
+
+	/**
+	 * Returns the anonymous user user segment remote service.
+	 *
+	 * @return the anonymous user user segment remote service
+	 */
+	public com.liferay.content.targeting.service.AnonymousUserUserSegmentService getAnonymousUserUserSegmentService() {
+		return anonymousUserUserSegmentService;
+	}
+
+	/**
+	 * Sets the anonymous user user segment remote service.
+	 *
+	 * @param anonymousUserUserSegmentService the anonymous user user segment remote service
+	 */
+	public void setAnonymousUserUserSegmentService(
+		com.liferay.content.targeting.service.AnonymousUserUserSegmentService anonymousUserUserSegmentService) {
+		this.anonymousUserUserSegmentService = anonymousUserUserSegmentService;
+	}
+
+	/**
+	 * Returns the anonymous user user segment persistence.
+	 *
+	 * @return the anonymous user user segment persistence
+	 */
+	public AnonymousUserUserSegmentPersistence getAnonymousUserUserSegmentPersistence() {
+		return anonymousUserUserSegmentPersistence;
+	}
+
+	/**
+	 * Sets the anonymous user user segment persistence.
+	 *
+	 * @param anonymousUserUserSegmentPersistence the anonymous user user segment persistence
+	 */
+	public void setAnonymousUserUserSegmentPersistence(
+		AnonymousUserUserSegmentPersistence anonymousUserUserSegmentPersistence) {
+		this.anonymousUserUserSegmentPersistence = anonymousUserUserSegmentPersistence;
 	}
 
 	/**
@@ -357,6 +478,63 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	 */
 	public void setCampaignFinder(CampaignFinder campaignFinder) {
 		this.campaignFinder = campaignFinder;
+	}
+
+	/**
+	 * Returns the channel instance local service.
+	 *
+	 * @return the channel instance local service
+	 */
+	public com.liferay.content.targeting.service.ChannelInstanceLocalService getChannelInstanceLocalService() {
+		return channelInstanceLocalService;
+	}
+
+	/**
+	 * Sets the channel instance local service.
+	 *
+	 * @param channelInstanceLocalService the channel instance local service
+	 */
+	public void setChannelInstanceLocalService(
+		com.liferay.content.targeting.service.ChannelInstanceLocalService channelInstanceLocalService) {
+		this.channelInstanceLocalService = channelInstanceLocalService;
+	}
+
+	/**
+	 * Returns the channel instance remote service.
+	 *
+	 * @return the channel instance remote service
+	 */
+	public com.liferay.content.targeting.service.ChannelInstanceService getChannelInstanceService() {
+		return channelInstanceService;
+	}
+
+	/**
+	 * Sets the channel instance remote service.
+	 *
+	 * @param channelInstanceService the channel instance remote service
+	 */
+	public void setChannelInstanceService(
+		com.liferay.content.targeting.service.ChannelInstanceService channelInstanceService) {
+		this.channelInstanceService = channelInstanceService;
+	}
+
+	/**
+	 * Returns the channel instance persistence.
+	 *
+	 * @return the channel instance persistence
+	 */
+	public ChannelInstancePersistence getChannelInstancePersistence() {
+		return channelInstancePersistence;
+	}
+
+	/**
+	 * Sets the channel instance persistence.
+	 *
+	 * @param channelInstancePersistence the channel instance persistence
+	 */
+	public void setChannelInstancePersistence(
+		ChannelInstancePersistence channelInstancePersistence) {
+		this.channelInstancePersistence = channelInstancePersistence;
 	}
 
 	/**
@@ -471,6 +649,62 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	public void setRuleInstancePersistence(
 		RuleInstancePersistence ruleInstancePersistence) {
 		this.ruleInstancePersistence = ruleInstancePersistence;
+	}
+
+	/**
+	 * Returns the tactic local service.
+	 *
+	 * @return the tactic local service
+	 */
+	public com.liferay.content.targeting.service.TacticLocalService getTacticLocalService() {
+		return tacticLocalService;
+	}
+
+	/**
+	 * Sets the tactic local service.
+	 *
+	 * @param tacticLocalService the tactic local service
+	 */
+	public void setTacticLocalService(
+		com.liferay.content.targeting.service.TacticLocalService tacticLocalService) {
+		this.tacticLocalService = tacticLocalService;
+	}
+
+	/**
+	 * Returns the tactic remote service.
+	 *
+	 * @return the tactic remote service
+	 */
+	public com.liferay.content.targeting.service.TacticService getTacticService() {
+		return tacticService;
+	}
+
+	/**
+	 * Sets the tactic remote service.
+	 *
+	 * @param tacticService the tactic remote service
+	 */
+	public void setTacticService(
+		com.liferay.content.targeting.service.TacticService tacticService) {
+		this.tacticService = tacticService;
+	}
+
+	/**
+	 * Returns the tactic persistence.
+	 *
+	 * @return the tactic persistence
+	 */
+	public TacticPersistence getTacticPersistence() {
+		return tacticPersistence;
+	}
+
+	/**
+	 * Sets the tactic persistence.
+	 *
+	 * @param tacticPersistence the tactic persistence
+	 */
+	public void setTacticPersistence(TacticPersistence tacticPersistence) {
+		this.tacticPersistence = tacticPersistence;
 	}
 
 	/**
@@ -604,6 +838,62 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	public void setCounterLocalService(
 		com.liferay.counter.service.CounterLocalService counterLocalService) {
 		this.counterLocalService = counterLocalService;
+	}
+
+	/**
+	 * Returns the group local service.
+	 *
+	 * @return the group local service
+	 */
+	public com.liferay.portal.service.GroupLocalService getGroupLocalService() {
+		return groupLocalService;
+	}
+
+	/**
+	 * Sets the group local service.
+	 *
+	 * @param groupLocalService the group local service
+	 */
+	public void setGroupLocalService(
+		com.liferay.portal.service.GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	/**
+	 * Returns the group remote service.
+	 *
+	 * @return the group remote service
+	 */
+	public com.liferay.portal.service.GroupService getGroupService() {
+		return groupService;
+	}
+
+	/**
+	 * Sets the group remote service.
+	 *
+	 * @param groupService the group remote service
+	 */
+	public void setGroupService(
+		com.liferay.portal.service.GroupService groupService) {
+		this.groupService = groupService;
+	}
+
+	/**
+	 * Returns the group persistence.
+	 *
+	 * @return the group persistence
+	 */
+	public GroupPersistence getGroupPersistence() {
+		return groupPersistence;
+	}
+
+	/**
+	 * Sets the group persistence.
+	 *
+	 * @param groupPersistence the group persistence
+	 */
+	public void setGroupPersistence(GroupPersistence groupPersistence) {
+		this.groupPersistence = groupPersistence;
 	}
 
 	/**
@@ -763,6 +1053,12 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 		}
 	}
 
+	@BeanReference(type = com.liferay.content.targeting.service.AnonymousUserUserSegmentLocalService.class)
+	protected com.liferay.content.targeting.service.AnonymousUserUserSegmentLocalService anonymousUserUserSegmentLocalService;
+	@BeanReference(type = com.liferay.content.targeting.service.AnonymousUserUserSegmentService.class)
+	protected com.liferay.content.targeting.service.AnonymousUserUserSegmentService anonymousUserUserSegmentService;
+	@BeanReference(type = AnonymousUserUserSegmentPersistence.class)
+	protected AnonymousUserUserSegmentPersistence anonymousUserUserSegmentPersistence;
 	@BeanReference(type = com.liferay.content.targeting.service.CampaignLocalService.class)
 	protected com.liferay.content.targeting.service.CampaignLocalService campaignLocalService;
 	@BeanReference(type = com.liferay.content.targeting.service.CampaignService.class)
@@ -771,6 +1067,12 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	protected CampaignPersistence campaignPersistence;
 	@BeanReference(type = CampaignFinder.class)
 	protected CampaignFinder campaignFinder;
+	@BeanReference(type = com.liferay.content.targeting.service.ChannelInstanceLocalService.class)
+	protected com.liferay.content.targeting.service.ChannelInstanceLocalService channelInstanceLocalService;
+	@BeanReference(type = com.liferay.content.targeting.service.ChannelInstanceService.class)
+	protected com.liferay.content.targeting.service.ChannelInstanceService channelInstanceService;
+	@BeanReference(type = ChannelInstancePersistence.class)
+	protected ChannelInstancePersistence channelInstancePersistence;
 	@BeanReference(type = com.liferay.content.targeting.service.ReportInstanceLocalService.class)
 	protected com.liferay.content.targeting.service.ReportInstanceLocalService reportInstanceLocalService;
 	@BeanReference(type = com.liferay.content.targeting.service.ReportInstanceService.class)
@@ -783,6 +1085,12 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	protected com.liferay.content.targeting.service.RuleInstanceService ruleInstanceService;
 	@BeanReference(type = RuleInstancePersistence.class)
 	protected RuleInstancePersistence ruleInstancePersistence;
+	@BeanReference(type = com.liferay.content.targeting.service.TacticLocalService.class)
+	protected com.liferay.content.targeting.service.TacticLocalService tacticLocalService;
+	@BeanReference(type = com.liferay.content.targeting.service.TacticService.class)
+	protected com.liferay.content.targeting.service.TacticService tacticService;
+	@BeanReference(type = TacticPersistence.class)
+	protected TacticPersistence tacticPersistence;
 	@BeanReference(type = com.liferay.content.targeting.service.TrackingActionInstanceLocalService.class)
 	protected com.liferay.content.targeting.service.TrackingActionInstanceLocalService trackingActionInstanceLocalService;
 	@BeanReference(type = com.liferay.content.targeting.service.TrackingActionInstanceService.class)
@@ -797,6 +1105,12 @@ public abstract class ReportInstanceLocalServiceBaseImpl
 	protected UserSegmentPersistence userSegmentPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
 	protected com.liferay.counter.service.CounterLocalService counterLocalService;
+	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
+	protected com.liferay.portal.service.GroupLocalService groupLocalService;
+	@BeanReference(type = com.liferay.portal.service.GroupService.class)
+	protected com.liferay.portal.service.GroupService groupService;
+	@BeanReference(type = GroupPersistence.class)
+	protected GroupPersistence groupPersistence;
 	@BeanReference(type = com.liferay.portal.service.ResourceLocalService.class)
 	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
 	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)

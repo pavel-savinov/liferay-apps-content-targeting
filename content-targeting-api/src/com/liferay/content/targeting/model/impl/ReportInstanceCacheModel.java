@@ -38,9 +38,11 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 	Externalizable {
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(21);
+		StringBundler sb = new StringBundler(29);
 
-		sb.append("{reportInstanceId=");
+		sb.append("{uuid=");
+		sb.append(uuid);
+		sb.append(", reportInstanceId=");
 		sb.append(reportInstanceId);
 		sb.append(", groupId=");
 		sb.append(groupId);
@@ -50,10 +52,16 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 		sb.append(userId);
 		sb.append(", userName=");
 		sb.append(userName);
+		sb.append(", createDate=");
+		sb.append(createDate);
 		sb.append(", modifiedDate=");
 		sb.append(modifiedDate);
 		sb.append(", reportKey=");
 		sb.append(reportKey);
+		sb.append(", name=");
+		sb.append(name);
+		sb.append(", description=");
+		sb.append(description);
 		sb.append(", className=");
 		sb.append(className);
 		sb.append(", classPK=");
@@ -69,6 +77,13 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 	public ReportInstance toEntityModel() {
 		ReportInstanceImpl reportInstanceImpl = new ReportInstanceImpl();
 
+		if (uuid == null) {
+			reportInstanceImpl.setUuid(StringPool.BLANK);
+		}
+		else {
+			reportInstanceImpl.setUuid(uuid);
+		}
+
 		reportInstanceImpl.setReportInstanceId(reportInstanceId);
 		reportInstanceImpl.setGroupId(groupId);
 		reportInstanceImpl.setCompanyId(companyId);
@@ -79,6 +94,13 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 		}
 		else {
 			reportInstanceImpl.setUserName(userName);
+		}
+
+		if (createDate == Long.MIN_VALUE) {
+			reportInstanceImpl.setCreateDate(null);
+		}
+		else {
+			reportInstanceImpl.setCreateDate(new Date(createDate));
 		}
 
 		if (modifiedDate == Long.MIN_VALUE) {
@@ -93,6 +115,20 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 		}
 		else {
 			reportInstanceImpl.setReportKey(reportKey);
+		}
+
+		if (name == null) {
+			reportInstanceImpl.setName(StringPool.BLANK);
+		}
+		else {
+			reportInstanceImpl.setName(name);
+		}
+
+		if (description == null) {
+			reportInstanceImpl.setDescription(StringPool.BLANK);
+		}
+		else {
+			reportInstanceImpl.setDescription(description);
 		}
 
 		if (className == null) {
@@ -118,13 +154,17 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
+		uuid = objectInput.readUTF();
 		reportInstanceId = objectInput.readLong();
 		groupId = objectInput.readLong();
 		companyId = objectInput.readLong();
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
+		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
 		reportKey = objectInput.readUTF();
+		name = objectInput.readUTF();
+		description = objectInput.readUTF();
 		className = objectInput.readUTF();
 		classPK = objectInput.readLong();
 		typeSettings = objectInput.readUTF();
@@ -133,6 +173,13 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 	@Override
 	public void writeExternal(ObjectOutput objectOutput)
 		throws IOException {
+		if (uuid == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(uuid);
+		}
+
 		objectOutput.writeLong(reportInstanceId);
 		objectOutput.writeLong(groupId);
 		objectOutput.writeLong(companyId);
@@ -145,6 +192,7 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 			objectOutput.writeUTF(userName);
 		}
 
+		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
 
 		if (reportKey == null) {
@@ -152,6 +200,20 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 		}
 		else {
 			objectOutput.writeUTF(reportKey);
+		}
+
+		if (name == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(name);
+		}
+
+		if (description == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(description);
 		}
 
 		if (className == null) {
@@ -171,13 +233,17 @@ public class ReportInstanceCacheModel implements CacheModel<ReportInstance>,
 		}
 	}
 
+	public String uuid;
 	public long reportInstanceId;
 	public long groupId;
 	public long companyId;
 	public long userId;
 	public String userName;
+	public long createDate;
 	public long modifiedDate;
 	public String reportKey;
+	public String name;
+	public String description;
 	public String className;
 	public long classPK;
 	public String typeSettings;

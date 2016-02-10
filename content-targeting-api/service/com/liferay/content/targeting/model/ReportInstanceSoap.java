@@ -31,13 +31,17 @@ public class ReportInstanceSoap implements Serializable {
 	public static ReportInstanceSoap toSoapModel(ReportInstance model) {
 		ReportInstanceSoap soapModel = new ReportInstanceSoap();
 
+		soapModel.setUuid(model.getUuid());
 		soapModel.setReportInstanceId(model.getReportInstanceId());
 		soapModel.setGroupId(model.getGroupId());
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setUserId(model.getUserId());
 		soapModel.setUserName(model.getUserName());
+		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
 		soapModel.setReportKey(model.getReportKey());
+		soapModel.setName(model.getName());
+		soapModel.setDescription(model.getDescription());
 		soapModel.setClassName(model.getClassName());
 		soapModel.setClassPK(model.getClassPK());
 		soapModel.setTypeSettings(model.getTypeSettings());
@@ -93,6 +97,14 @@ public class ReportInstanceSoap implements Serializable {
 		setReportInstanceId(pk);
 	}
 
+	public String getUuid() {
+		return _uuid;
+	}
+
+	public void setUuid(String uuid) {
+		_uuid = uuid;
+	}
+
 	public long getReportInstanceId() {
 		return _reportInstanceId;
 	}
@@ -133,6 +145,14 @@ public class ReportInstanceSoap implements Serializable {
 		_userName = userName;
 	}
 
+	public Date getCreateDate() {
+		return _createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		_createDate = createDate;
+	}
+
 	public Date getModifiedDate() {
 		return _modifiedDate;
 	}
@@ -147,6 +167,22 @@ public class ReportInstanceSoap implements Serializable {
 
 	public void setReportKey(String reportKey) {
 		_reportKey = reportKey;
+	}
+
+	public String getName() {
+		return _name;
+	}
+
+	public void setName(String name) {
+		_name = name;
+	}
+
+	public String getDescription() {
+		return _description;
+	}
+
+	public void setDescription(String description) {
+		_description = description;
 	}
 
 	public String getClassName() {
@@ -173,13 +209,17 @@ public class ReportInstanceSoap implements Serializable {
 		_typeSettings = typeSettings;
 	}
 
+	private String _uuid;
 	private long _reportInstanceId;
 	private long _groupId;
 	private long _companyId;
 	private long _userId;
 	private String _userName;
+	private Date _createDate;
 	private Date _modifiedDate;
 	private String _reportKey;
+	private String _name;
+	private String _description;
 	private String _className;
 	private long _classPK;
 	private String _typeSettings;

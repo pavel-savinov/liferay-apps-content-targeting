@@ -15,9 +15,11 @@
 package com.liferay.content.targeting.lar;
 
 import com.liferay.content.targeting.model.Campaign;
+import com.liferay.content.targeting.model.Tactic;
 import com.liferay.content.targeting.model.TrackingActionInstance;
 import com.liferay.content.targeting.model.UserSegment;
 import com.liferay.content.targeting.service.CampaignLocalServiceUtil;
+import com.liferay.content.targeting.service.TacticLocalServiceUtil;
 import com.liferay.content.targeting.service.TrackingActionInstanceLocalServiceUtil;
 import com.liferay.content.targeting.service.UserSegmentLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -82,6 +84,8 @@ public class CampaignStagedModelDataHandler
 			campaign);
 
 		exportTrackingActionInstances(portletDataContext, campaign);
+
+		exportTactics(portletDataContext, campaignElement, campaign);
 	}
 
 	@Override
@@ -128,30 +132,48 @@ public class CampaignStagedModelDataHandler
 				importedCampaign = CampaignLocalServiceUtil.addCampaign(
 					userId, campaign.getNameMap(), campaign.getDescriptionMap(),
 					campaign.getStartDate(), campaign.getEndDate(),
-					campaign.getPriority(), campaign.getActive(),
-					userSegmentIds, serviceContext);
+					campaign.getTimeZoneId(), campaign.getPriority(),
+					campaign.getActive(), userSegmentIds, serviceContext);
 			}
 			else {
 				importedCampaign =
 					CampaignLocalServiceUtil.updateCampaign(
 						existingCampaign.getCampaignId(), campaign.getNameMap(),
 						campaign.getDescriptionMap(), campaign.getStartDate(),
-						campaign.getEndDate(), campaign.getPriority(),
-						campaign.getActive(), userSegmentIds, serviceContext);
+						campaign.getEndDate(), campaign.getTimeZoneId(),
+						campaign.getPriority(), campaign.getActive(),
+						userSegmentIds, serviceContext);
 			}
 		}
 		else {
 			importedCampaign = CampaignLocalServiceUtil.addCampaign(
 				userId, campaign.getNameMap(), campaign.getDescriptionMap(),
 				campaign.getStartDate(), campaign.getEndDate(),
-				campaign.getPriority(), campaign.getActive(), userSegmentIds,
-				serviceContext);
+				campaign.getTimeZoneId(), campaign.getPriority(),
+				campaign.getActive(), userSegmentIds, serviceContext);
 		}
 
 		importTrackingActionInstances(
 			portletDataContext, campaign, importedCampaign);
 
+		importTactics(portletDataContext, campaign, importedCampaign);
+
 		portletDataContext.importClassedModel(campaign, importedCampaign);
+	}
+
+	protected void exportTactics(
+			PortletDataContext portletDataContext, Element campaignElement,
+			Campaign campaign)
+		throws Exception {
+
+		List<Tactic> campaignTactics = TacticLocalServiceUtil.getTactics(
+			campaign.getCampaignId());
+
+		for (Tactic tactic : campaignTactics) {
+			StagedModelDataHandlerUtil.exportReferenceStagedModel(
+				portletDataContext, campaign, tactic,
+				PortletDataContext.REFERENCE_TYPE_EMBEDDED);
+		}
 	}
 
 	protected void exportTrackingActionInstances(
@@ -160,7 +182,7 @@ public class CampaignStagedModelDataHandler
 
 		List<TrackingActionInstance> trackingActionInstances =
 			TrackingActionInstanceLocalServiceUtil.getTrackingActionInstances(
-					campaign.getCampaignId());
+				campaign.getCampaignId());
 
 		for (TrackingActionInstance trackingActionInstance :
 				trackingActionInstances) {
@@ -197,6 +219,27 @@ public class CampaignStagedModelDataHandler
 		}
 	}
 
+	protected void importTactics(
+			PortletDataContext portletDataContext, Campaign campaign,
+			Campaign importedCampaign)
+		throws Exception {
+
+		List<Element> tacticElements =
+			portletDataContext.getReferenceDataElements(campaign, Tactic.class);
+
+		for (Element tacticElement : tacticElements) {
+			String tacticPath = tacticElement.attributeValue("path");
+
+			Tactic tactic = (Tactic)portletDataContext.getZipEntryAsObject(
+				tacticPath);
+
+			tactic.setCampaignId(importedCampaign.getCampaignId());
+
+			StagedModelDataHandlerUtil.importStagedModel(
+				portletDataContext, tactic);
+		}
+	}
+
 	protected void importTrackingActionInstances(
 			PortletDataContext portletDataContext, Campaign campaign,
 			Campaign importedCampaign)
@@ -204,7 +247,7 @@ public class CampaignStagedModelDataHandler
 
 		List<Element> trackingActionInstanceElements =
 			portletDataContext.getReferenceDataElements(
-					campaign, TrackingActionInstance.class);
+				campaign, TrackingActionInstance.class);
 
 		for (Element trackingActionInstanceElement :
 				trackingActionInstanceElements) {

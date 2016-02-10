@@ -59,10 +59,24 @@ public class TrackingActionInstanceServiceWrapper
 			parameterTypes, arguments);
 	}
 
+	@Override
+	public com.liferay.content.targeting.model.TrackingActionInstance addTrackingActionInstance(
+		long userId, long reportInstanceId, java.lang.String trackingActionKey,
+		long campaignId, java.lang.String alias,
+		java.lang.String referrerClassName, long referrerClassPK,
+		java.lang.String elementId, java.lang.String eventType,
+		java.lang.String typeSettings,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _trackingActionInstanceService.addTrackingActionInstance(userId,
+			reportInstanceId, trackingActionKey, campaignId, alias,
+			referrerClassName, referrerClassPK, elementId, eventType,
+			typeSettings, serviceContext);
+	}
+
 	/**
-	* NOTE FOR DEVELOPERS:
-	*
-	* Never reference this interface directly. Always use {@link com.liferay.content.targeting.service.TrackingActionInstanceServiceUtil} to access the tracking action instance remote service.
+	* @deprecated As of 2.0.0
 	*/
 	@Override
 	public com.liferay.content.targeting.model.TrackingActionInstance addTrackingActionInstance(
@@ -87,10 +101,24 @@ public class TrackingActionInstanceServiceWrapper
 	}
 
 	@Override
+	public com.liferay.content.targeting.model.TrackingActionInstance fetchTrackingActionInstance(
+		long campaignId, java.lang.String alias) throws java.lang.Exception {
+		return _trackingActionInstanceService.fetchTrackingActionInstance(campaignId,
+			alias);
+	}
+
+	@Override
 	public java.util.List<com.liferay.content.targeting.model.TrackingActionInstance> getTrackingActionInstances(
 		long campaignId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _trackingActionInstanceService.getTrackingActionInstances(campaignId);
+	}
+
+	@Override
+	public java.util.List<com.liferay.content.targeting.model.TrackingActionInstance> getTrackingActionInstancesByReportInstanceId(
+		long reportInstanceId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _trackingActionInstanceService.getTrackingActionInstancesByReportInstanceId(reportInstanceId);
 	}
 
 	@Override
@@ -101,16 +129,16 @@ public class TrackingActionInstanceServiceWrapper
 
 	@Override
 	public com.liferay.content.targeting.model.TrackingActionInstance updateTrackingActionInstance(
-		long trackingActionInstanceId, java.lang.String alias,
-		java.lang.String referrerClassName, long referrerClassPK,
-		java.lang.String elementId, java.lang.String eventType,
-		java.lang.String typeSettings,
+		long trackingActionInstanceId, long reportInstanceId,
+		java.lang.String alias, java.lang.String referrerClassName,
+		long referrerClassPK, java.lang.String elementId,
+		java.lang.String eventType, java.lang.String typeSettings,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _trackingActionInstanceService.updateTrackingActionInstance(trackingActionInstanceId,
-			alias, referrerClassName, referrerClassPK, elementId, eventType,
-			typeSettings, serviceContext);
+			reportInstanceId, alias, referrerClassName, referrerClassPK,
+			elementId, eventType, typeSettings, serviceContext);
 	}
 
 	/**

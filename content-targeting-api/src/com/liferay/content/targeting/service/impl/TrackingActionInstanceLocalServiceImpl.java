@@ -14,11 +14,11 @@
 
 package com.liferay.content.targeting.service.impl;
 
+import com.liferay.content.targeting.DuplicateTrackingActionInstanceException;
 import com.liferay.content.targeting.api.model.TrackingAction;
 import com.liferay.content.targeting.api.model.TrackingActionsRegistry;
 import com.liferay.content.targeting.model.TrackingActionInstance;
 import com.liferay.content.targeting.service.base.TrackingActionInstanceLocalServiceBaseImpl;
-import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.osgi.util.service.ServiceTrackerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -31,7 +31,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -65,17 +64,19 @@ public class TrackingActionInstanceLocalServiceImpl
 
 	@Override
 	public TrackingActionInstance addTrackingActionInstance(
-			long userId, String trackingActionKey, long campaignId,
-			String alias, String referrerClassName, long referrerClassPK,
-			String elementId, String eventType, String typeSettings,
-			ServiceContext serviceContext)
+			long userId, long reportInstanceId, String trackingActionKey,
+			long campaignId, String alias, String referrerClassName,
+			long referrerClassPK, String elementId, String eventType,
+			String typeSettings, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		User user = UserLocalServiceUtil.getUser(userId);
+		validate(0, campaignId, alias);
+
+		User user = userLocalService.getUser(userId);
 
 		Date now = new Date();
 
-		long trackingActionInstanceId = CounterLocalServiceUtil.increment();
+		long trackingActionInstanceId = counterLocalService.increment();
 
 		TrackingActionInstance trackingActionInstance =
 			trackingActionInstancePersistence.create(trackingActionInstanceId);
@@ -91,6 +92,7 @@ public class TrackingActionInstanceLocalServiceImpl
 		trackingActionInstance.setTrackingActionKey(trackingActionKey);
 		trackingActionInstance.setCampaignId(campaignId);
 		trackingActionInstance.setAlias(alias);
+		trackingActionInstance.setReportInstanceId(reportInstanceId);
 		trackingActionInstance.setReferrerClassName(referrerClassName);
 		trackingActionInstance.setReferrerClassPK(referrerClassPK);
 		trackingActionInstance.setElementId(elementId);
@@ -100,6 +102,24 @@ public class TrackingActionInstanceLocalServiceImpl
 		trackingActionInstancePersistence.update(trackingActionInstance);
 
 		return trackingActionInstance;
+	}
+
+	/**
+	* @deprecated As of 2.0.0
+	*/
+	@Deprecated
+	@Override
+	public TrackingActionInstance addTrackingActionInstance(
+			long userId, String trackingActionKey, long campaignId,
+			String alias, String referrerClassName, long referrerClassPK,
+			String elementId, String eventType, String typeSettings,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		return addTrackingActionInstance(
+			userId, 0, trackingActionKey, campaignId, alias, referrerClassName,
+			referrerClassPK, elementId, eventType, typeSettings,
+			serviceContext);
 	}
 
 	@Indexable(type = IndexableType.DELETE)
@@ -154,6 +174,23 @@ public class TrackingActionInstanceLocalServiceImpl
 	}
 
 	@Override
+	public TrackingActionInstance fetchTrackingActionInstance(
+			long campaignId, String alias)
+		throws SystemException {
+
+		return trackingActionInstancePersistence.fetchByC_A(campaignId, alias);
+	}
+
+	@Override
+	public TrackingActionInstance fetchTrackingActionInstanceByReportInstanceId(
+			long reportInstanceId, String alias)
+		throws SystemException {
+
+		return trackingActionInstancePersistence.fetchByR_A(
+			reportInstanceId, alias);
+	}
+
+	@Override
 	public List<TrackingActionInstance> getTrackingActionInstances(
 			long campaignId)
 		throws SystemException {
@@ -173,10 +210,41 @@ public class TrackingActionInstanceLocalServiceImpl
 	@Override
 	public List<TrackingActionInstance> getTrackingActionInstances(
 			long campaignId, String elementId, String eventType)
-		throws SystemException {
+	throws SystemException {
 
 		return trackingActionInstancePersistence.findByC_E_E(
 			campaignId, elementId, eventType);
+	}
+
+	@Override
+	public List<TrackingActionInstance>
+		getTrackingActionInstancesByReportInstanceId(
+			long reportInstanceId)
+		throws SystemException {
+
+		return trackingActionInstancePersistence.findByReportInstanceId(
+			reportInstanceId);
+	}
+
+	@Override
+	public List<TrackingActionInstance>
+		getTrackingActionInstancesByReportInstanceId(
+			long reportInstanceId, String className, long classPK,
+			String eventType)
+		throws SystemException {
+
+		return trackingActionInstancePersistence.findByR_R_R_E(
+			reportInstanceId, className, classPK, eventType);
+	}
+
+	@Override
+	public List<TrackingActionInstance>
+		getTrackingActionInstancesByReportInstanceId(
+			long reportInstanceId, String elementId, String eventType)
+		throws SystemException {
+
+		return trackingActionInstancePersistence.findByR_E_E(
+			reportInstanceId, elementId, eventType);
 	}
 
 	@Override
@@ -188,7 +256,7 @@ public class TrackingActionInstanceLocalServiceImpl
 
 	@Override
 	public TrackingActionInstance updateTrackingActionInstance(
-			long trackingActionInstanceId, String alias,
+			long trackingActionInstanceId, long reportInstanceId, String alias,
 			String referrerClassName, long referrerClassPK, String elementId,
 			String eventType, String typeSettings,
 			ServiceContext serviceContext)
@@ -200,9 +268,14 @@ public class TrackingActionInstanceLocalServiceImpl
 			trackingActionInstancePersistence.findByPrimaryKey(
 				trackingActionInstanceId);
 
+		validate(
+			trackingActionInstanceId, trackingActionInstance.getCampaignId(),
+			alias);
+
 		trackingActionInstance.setModifiedDate(
 			serviceContext.getModifiedDate(now));
 		trackingActionInstance.setAlias(alias);
+		trackingActionInstance.setReportInstanceId(reportInstanceId);
 		trackingActionInstance.setReferrerClassName(referrerClassName);
 		trackingActionInstance.setReferrerClassPK(referrerClassPK);
 		trackingActionInstance.setElementId(elementId);
@@ -212,6 +285,23 @@ public class TrackingActionInstanceLocalServiceImpl
 		trackingActionInstancePersistence.update(trackingActionInstance);
 
 		return trackingActionInstance;
+	}
+
+	protected void validate(
+			long trackingInstanceId, long campaignId, String alias)
+		throws PortalException, SystemException {
+
+		TrackingActionInstance trackingActionInstance =
+			trackingActionInstancePersistence.fetchByC_A(campaignId, alias);
+
+		if ((trackingActionInstance != null) &&
+			(trackingActionInstance.getTrackingActionInstanceId() !=
+				trackingInstanceId)) {
+
+			throw new DuplicateTrackingActionInstanceException(
+				"A tracking action instance with the alias " + alias +
+					" already exists in campaign " + campaignId);
+		}
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(

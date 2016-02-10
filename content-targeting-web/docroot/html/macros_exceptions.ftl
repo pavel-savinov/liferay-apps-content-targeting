@@ -1,6 +1,6 @@
 <#--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,17 +30,33 @@
 	</@>
 </#macro>
 
+<#macro invalidChannelsException>
+	<@liferay_ui["error"] key="com.liferay.content.targeting.InvalidChannelsException" message="there-is-an-error-in-one-of-your-channels" />
+</#macro>
+
+<#macro invalidReportException>
+	<@liferay_ui["error"] key="com.liferay.content.targeting.InvalidReportException" message="there-is-an-error-in-one-of-your-report-elements" />
+</#macro>
+
 <#macro invalidRulesException>
 	<@liferay_ui["error"] key="com.liferay.content.targeting.InvalidRulesException" message="there-is-an-error-in-one-of-your-rules" />
 </#macro>
 
 <#macro invalidTrackingActionsException>
-	<@liferay_ui["error"] key="com.liferay.content.targeting.InvalidTrackingActionsException" message="there-is-an-error-in-one-of-your-tracking-actions" />
+	<@liferay_ui["error"] key="com.liferay.content.targeting.InvalidTrackingActionsException" message="there-is-an-error-in-one-of-your-metrics" />
 </#macro>
 
 <#macro usedUserSegmentException>
 	<@liferay_ui["error"] key="com.liferay.content.targeting.UsedUserSegmentException">
-		<@liferay_ui["message"] key="this-user-segment-can-not-be-deleted-because-it-is-used-by-the-following-campaigns" />
+		<@liferay_ui["message"] key="the-following-user-segments"/>
+
+		<ul>
+			<#list usedUserSegments as userSegment>
+				<li>${userSegment.getName(locale)}</li>
+			</#list>
+		</ul>
+
+		<@liferay_ui["message"] key="cannot-be-deleted-because-they-are-used-in-the-following-campaigns" />
 
 		<ul>
 			<#list errorException.getCampaigns() as campaign>

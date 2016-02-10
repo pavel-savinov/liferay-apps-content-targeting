@@ -178,15 +178,13 @@ public class PageVisitedRule extends BaseRule {
 			WebKeys.THEME_DISPLAY);
 
 		String friendlyURL = values.get("friendlyURL");
+		boolean privateLayout = GetterUtil.getBoolean(
+			values.get("privateLayout"), false);
 
 		try {
+			long liveGroupId = themeDisplay.getSiteGroupIdOrLiveGroupId();
 			Layout layout = LayoutLocalServiceUtil.fetchLayoutByFriendlyURL(
-				themeDisplay.getScopeGroupId(), false, friendlyURL);
-
-			if (layout == null) {
-				layout = LayoutLocalServiceUtil.fetchLayoutByFriendlyURL(
-					themeDisplay.getScopeGroupId(), true, friendlyURL);
-			}
+				liveGroupId, privateLayout, friendlyURL);
 
 			if (layout != null) {
 				return String.valueOf(layout.getPlid());
@@ -196,10 +194,10 @@ public class PageVisitedRule extends BaseRule {
 					"a-page-with-this-friendly-url-could-not-be-found");
 			}
 		}
-		catch (SystemException e) {
+		catch (Exception e) {
+			throw new InvalidRuleException(
+					"a-page-with-this-friendly-url-could-not-be-found");
 		}
-
-		return StringPool.BLANK;
 	}
 
 	@Reference
@@ -220,22 +218,26 @@ public class PageVisitedRule extends BaseRule {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)context.get("themeDisplay");
 
-		String friendlyURLBase = StringPool.BLANK;
+		String friendlyURLPrivateBase = StringPool.BLANK;
+		String friendlyURLPublicBase = StringPool.BLANK;
 
 		try {
-			friendlyURLBase = PortalUtil.getGroupFriendlyURL(
+			friendlyURLPublicBase = PortalUtil.getGroupFriendlyURL(
 				themeDisplay.getScopeGroup(), false, themeDisplay);
+			friendlyURLPrivateBase = PortalUtil.getGroupFriendlyURL(
+				themeDisplay.getScopeGroup(), true, themeDisplay);
 		}
 		catch (Exception e) {
 			_log.error(e);
 		}
 
-		context.put("friendlyURLBase", friendlyURLBase);
-
 		String friendlyURL = StringPool.BLANK;
+		boolean privateLayout = false;
 
 		if (!values.isEmpty()) {
 			friendlyURL = values.get("friendlyURL");
+			privateLayout = GetterUtil.getBoolean(
+				values.get("privateLayout"), false);
 		}
 		else if (ruleInstance != null) {
 			long plid = GetterUtil.getLong(ruleInstance.getTypeSettings());
@@ -245,6 +247,7 @@ public class PageVisitedRule extends BaseRule {
 
 				if (layout != null) {
 					friendlyURL = layout.getFriendlyURL();
+					privateLayout = layout.isPrivateLayout();
 				}
 			}
 			catch (SystemException e) {
@@ -252,6 +255,17 @@ public class PageVisitedRule extends BaseRule {
 		}
 
 		context.put("friendlyURL", friendlyURL);
+		context.put("privateLayout", privateLayout);
+
+		if (privateLayout) {
+			context.put("friendlyURLBase", friendlyURLPrivateBase);
+		}
+		else {
+			context.put("friendlyURLBase", friendlyURLPublicBase);
+		}
+
+		context.put("friendlyURLPublicBase", friendlyURLPublicBase);
+		context.put("friendlyURLPrivateBase", friendlyURLPrivateBase);
 
 		long groupId = (Long)context.get("scopeGroupId");
 

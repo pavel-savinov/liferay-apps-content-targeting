@@ -1,6 +1,6 @@
 <#--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -28,10 +28,10 @@
 			<@portlet["param"] name="redirect" value="${redirectURL}" />
 		</@>
 
-		<@aui["nav-item"] href="${addCampaignURL}" iconCssClass="icon-plus" label="add-campaign" />
+		<@aui["nav-item"] href="${addCampaignURL}" iconCssClass="icon-plus" label='${languageUtil.get(portletConfig, locale, "add-campaign")}' />
 	</#if>
 
 	<#if campaignPermission.contains(permissionChecker, scopeGroupId, scopeGroupId, actionKeys.DELETE)>
-		<@aui["nav-item"] cssClass="hide" iconCssClass="icon-remove" id="deleteCampaigns" label="delete" />
+		<@aui["nav-item"] cssClass="hide" iconCssClass="icon-remove" id="deleteCampaigns" label='${languageUtil.get(portletConfig, locale, "delete")}' />
 	</#if>
 </@>

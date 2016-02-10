@@ -16,9 +16,10 @@ package com.liferay.content.targeting.analytics.service.impl;
 
 import com.liferay.content.targeting.analytics.model.AnalyticsReferrer;
 import com.liferay.content.targeting.analytics.service.base.AnalyticsReferrerLocalServiceBaseImpl;
-import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+
+import java.util.List;
 
 /**
  * The implementation of the analytics referrer local service.
@@ -42,7 +43,7 @@ public class AnalyticsReferrerLocalServiceImpl
 			long analyticsEventId, String className, long classPK)
 		throws PortalException, SystemException {
 
-		long analyticsReferrerId = CounterLocalServiceUtil.increment();
+		long analyticsReferrerId = counterLocalService.increment();
 
 		AnalyticsReferrer analyticsReferrer =
 			analyticsReferrerPersistence.create(analyticsReferrerId);
@@ -79,6 +80,14 @@ public class AnalyticsReferrerLocalServiceImpl
 		throws SystemException {
 
 		return analyticsReferrerPersistence.countByR_R(className, classPK);
+	}
+
+	@Override
+	public List<AnalyticsReferrer> getAnalyticsReferrers(long analyticsEventId)
+		throws SystemException {
+
+		return analyticsReferrerPersistence.findByAnalyticsEventId(
+			analyticsEventId);
 	}
 
 }

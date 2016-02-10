@@ -1,6 +1,6 @@
 <#--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,10 +14,99 @@
  */
 -->
 
-
-
 <#macro breadcrumb>
 	<@liferay_ui["breadcrumb"] showCurrentGroup=false showCurrentPortlet=false showLayout=false />
+</#macro>
+
+<#macro closeConfirm
+	confirmMessage
+	controlCssClasses=[]
+>
+	<#assign controlCssClassesSelector="">
+
+	<#list controlCssClasses as controlCssClass>
+		<#if (controlCssClassesSelector?length > 0)>
+			<#assign controlCssClassesSelector=controlCssClassesSelector + ",">
+		</#if>
+
+		<#assign controlCssClassesSelector=controlCssClassesSelector + "." + controlCssClass>
+	</#list>
+
+	<@aui["input"] type="hidden" name="closeConfirm" value="true" />
+
+	<@aui["script"] use="aui-base">
+		A.all('${controlCssClassesSelector}').on(
+			'mouseup',
+			function(event) {
+				var closeConfirmElement = A.one('#<@portlet["namespace"] />closeConfirm');
+
+				closeConfirmElement.val('false');
+			}
+		);
+
+		A.on(
+			'beforeunload',
+			function(event) {
+				var closeConfirmElement = A.one('#<@portlet["namespace"] />closeConfirm');
+
+				if (closeConfirmElement.val() === 'true') {
+					event.preventDefault('<@liferay_ui["message"] key="${confirmMessage}" />');
+				}
+			}
+		);
+	</@>
+</#macro>
+
+<#macro fieldHeaderListener
+	fieldName
+>
+	<@aui["script"] use="aui-base">
+		var formBuilder = A.one('.form-builder-drop-container');
+
+		formBuilder.delegate(
+			'blur',
+			function(){
+				var node = this;
+
+				var headerSpan = node.ancestor('.form-builder-field-content').one('span.field-description-alias');
+				var headerInfoSpan = node.ancestor('.form-builder-field-content').one('span.field-description-info');
+
+				if (node.val() && node.val() !== '') {
+					var headerValue = node.val();
+
+					if (headerInfoSpan.text() !== '') {
+						headerValue += '. ';
+					}
+
+					headerSpan.text(headerValue);
+				}
+				else {
+					headerSpan.text('');
+				}
+			},
+			'[name*="${fieldName}"]'
+		);
+
+		formBuilder.all('[name*="${fieldName}"]').each(
+			function(node) {
+				var headerSpan = node.ancestor('.form-builder-field-content').one('span.field-description-alias');
+				var headerInfoSpan = node.ancestor('.form-builder-field-content').one('span.field-description-info');
+
+				if (node.val() && node.val() !== '') {
+					var headerValue = node.val();
+
+					if (headerInfoSpan.text() !== '') {
+						headerValue += '. ';
+					}
+
+					headerSpan.text(headerValue);
+				}
+				else {
+					headerSpan.text('');
+				}
+			}
+		);
+	</@>
 </#macro>
 
 <#macro getEditIconLink
@@ -142,7 +231,7 @@
 	<div class="edit-controls lfr-meta-actions">
 		<@aui["input"] name="assetEntryId${index}" type="hidden" value=queryRule.getAssetEntryId() />
 
-		<@liferay_ui["icon-menu"] cssClass="select-existing-selector" direction="right" icon="${themeDisplay.getPathThemeImages()}/common/add.png" message=languageUtil.get(locale, "select-content") showWhenSingleIcon=true>
+		<@liferay_ui["icon-menu"] cssClass="select-existing-selector" direction="right" icon="${themeDisplay.getPathThemeImages()}/common/add.png" message=languageUtil.get(portletConfig, locale, "select-content") showWhenSingleIcon=true>
 			<#list assetRendererFactories as assetRendererFactory>
 				<@liferay_ui["icon"]
 					cssClass="asset-selector"
@@ -247,4 +336,88 @@
 			);
 		</@>
 	</#if>
+</#macro>
+
+<#macro userSegmentSelector
+	assetCategoryIds
+	assetCategoryNames
+	hiddenInput
+	vocabularyGroupIds
+	vocabularyIds
+	warningMessage
+	filterIds=""
+>
+	<@portlet["renderURL"] var="viewUserSegments">
+		<@portlet["param"] name="mvcPath" value="${contentTargetingPath.VIEW}" />
+		<@portlet["param"] name="tabs1" value="user-segments" />
+	</@>
+
+	<div class="user-segment-selector">
+		<span class="query-and-operator-text"><@liferay_ui["message"] key="user-segments" /></span>
+
+		<@liferay_ui["icon"]
+			id="manageUserSegments"
+			image="configuration"
+			label=false
+			message="manage-user-segments"
+			url="javascript:;"
+		/>
+
+		<div class="lfr-tags-selector-content" id="<@portlet["namespace"] />assetCategorySelector">
+			<@aui["input"] name="${hiddenInput}" type="hidden" value="${assetCategoryIds}" />
+		</div>
+
+		<@aui["script"] use="liferay-asset-categories-selector">
+			var manageUserSegmentsLink = A.one('#<@portlet["namespace"] />manageUserSegments');
+
+			manageUserSegmentsLink.on(
+				'click',
+				function() {
+					var closeConfirmElement = A.one('#<@portlet["namespace"] />closeConfirm');
+
+					if (closeConfirmElement) {
+						closeConfirmElement.val('false');
+					}
+
+					if (confirm('<@liferay_ui["message"] key="${warningMessage}" />')) {
+						window.location.href = "${viewUserSegments}";
+					}
+				}
+			);
+
+			var assetCategoriesSelector = new Liferay.AssetCategoriesSelector(
+				{
+					contentBox: '#<@portlet["namespace"] />assetCategorySelector',
+					curEntries: '${assetCategoryNames}',
+					curEntryIds: '${assetCategoryIds}',
+					<#if (filterIds?has_content)>
+						filterIds: '${filterIds}',
+					</#if>
+					hiddenInput: '#<@portlet["namespace"] />${hiddenInput}',
+					instanceVar: '<@portlet["namespace"] />',
+					vocabularyGroupIds: '${vocabularyGroupIds}',
+					vocabularyIds: '${vocabularyIds}',
+					title: '<@liferay_ui["message"] key="select-user-segments" />'
+				}
+			).render();
+
+			var changeTitle = function() {
+				assetCategoriesSelector._popup.titleNode.html(assetCategoriesSelector.get('title'));
+
+				var modalBody = assetCategoriesSelector._popup.getStdModNode(A.WidgetStdMod.BODY);
+
+				modalBody.append('<div style="position: absolute; bottom: 15px; right: 15px;"><button class="btn btn-primary close-popup-button"><@liferay_ui["message"] key="ok" /></button></div>');
+
+				modalBody.one('.close-popup-button').on(
+					'click',
+					function() {
+						assetCategoriesSelector._popup.hide();
+						this.ancestor('div').remove();
+					}
+				);
+			};
+
+			A.Do.after(changeTitle, assetCategoriesSelector, '_showSelectPopup');
+		</@>
+	</div>
 </#macro>

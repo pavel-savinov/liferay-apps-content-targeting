@@ -15,23 +15,25 @@
 package com.liferay.content.targeting.analytics.service.impl;
 
 import com.liferay.content.targeting.analytics.model.AnalyticsEvent;
+import com.liferay.content.targeting.analytics.model.AnalyticsReferrer;
 import com.liferay.content.targeting.analytics.service.base.AnalyticsEventLocalServiceBaseImpl;
 import com.liferay.content.targeting.analytics.util.PortletPropsValues;
-import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Indexable;
+import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.persistence.CompanyActionableDynamicQuery;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The implementation of the analytics event local service.
@@ -49,6 +51,32 @@ import java.util.List;
  */
 public class AnalyticsEventLocalServiceImpl
 	extends AnalyticsEventLocalServiceBaseImpl {
+
+	@Override
+	public AnalyticsEvent addAnalyticsEvent(
+			long userId, long anonymousUserId, String className, long classPK,
+			Map<String, long[]> referrers, String elementId, String eventType,
+			String clientIP, String userAgent, String languageId, String URL,
+			String additionalInfo, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		AnalyticsEvent analyticsEvent = addAnalyticsEvent(
+			userId, anonymousUserId, className, classPK, elementId, eventType,
+			clientIP, userAgent, languageId, URL, additionalInfo,
+			serviceContext);
+
+		for (Map.Entry<String, long[]> entry : referrers.entrySet()) {
+			String referrerClassName = entry.getKey();
+
+			for (long referrerClassPK : entry.getValue()) {
+				analyticsReferrerLocalService.addAnalyticsReferrer(
+					analyticsEvent.getAnalyticsEventId(), referrerClassName,
+					referrerClassPK);
+			}
+		}
+
+		return analyticsEvent;
+	}
 
 	@Override
 	public AnalyticsEvent addAnalyticsEvent(
@@ -81,14 +109,14 @@ public class AnalyticsEventLocalServiceImpl
 			String additionalInfo, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		long analyticsEventId = CounterLocalServiceUtil.increment();
+		long analyticsEventId = counterLocalService.increment();
 
 		AnalyticsEvent analyticsEvent = analyticsEventPersistence.create(
 			analyticsEventId);
 
 		analyticsEvent.setCompanyId(serviceContext.getCompanyId());
 
-		User user = UserLocalServiceUtil.fetchUser(userId);
+		User user = userLocalService.fetchUser(userId);
 
 		if (user != null) {
 			analyticsEvent.setUserId(user.getUserId());
@@ -129,6 +157,26 @@ public class AnalyticsEventLocalServiceImpl
 			};
 
 		actionableDynamicQuery.performActions();
+	}
+
+	@Indexable(type = IndexableType.DELETE)
+	@Override
+	public AnalyticsEvent deleteAnalyticsEvent(AnalyticsEvent analyticsEvent)
+		throws SystemException {
+
+		analyticsEventPersistence.remove(analyticsEvent);
+
+		// Analytic referrers
+
+		for (AnalyticsReferrer analyticsReferrer :
+				analyticsReferrerLocalService.getAnalyticsReferrers(
+					analyticsEvent.getAnalyticsEventId())) {
+
+			analyticsReferrerLocalService.deleteAnalyticsReferrer(
+				analyticsReferrer);
+		}
+
+		return analyticsEvent;
 	}
 
 	@Override

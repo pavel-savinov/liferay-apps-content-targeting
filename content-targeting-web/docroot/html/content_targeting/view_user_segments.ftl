@@ -1,6 +1,6 @@
 <#--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -33,7 +33,7 @@
 
 		<@aui["nav-bar-search"] cssClass="pull-right">
 			<div class="form-search">
-				<@liferay_ui["input-search"] id="userSegmentkeywords" name="keywords" placeholder='${languageUtil.get(themeDisplay.getLocale(), "keywords")}' />
+				<@liferay_ui["input-search"] id="userSegmentKeywords" name="userSegmentKeywords" placeholder='${languageUtil.get(portletConfig, locale, "keywords")}' />
 			</div>
 		</@>
 	</@>
@@ -45,7 +45,7 @@
 
 <@aui["script"] use="liferay-ajax-search">
 	var userSegmentsPanel = A.one('#<@portlet["namespace"] />userSegmentsPanel');
-	var inputNode = A.one('#<@portlet["namespace"] />userSegmentkeywords');
+	var inputNode = A.one('#<@portlet["namespace"] />userSegmentKeywords');
 
 	var search = new Liferay.AjaxContentSearch(
 		{

@@ -1,6 +1,8 @@
 create table CT_CTA_CTAction (
 	CTActionId LONG not null primary key,
+	companyId LONG,
 	campaignId LONG,
+	reportInstanceId LONG,
 	userSegmentId LONG,
 	alias_ VARCHAR(75) null,
 	referrerClassName VARCHAR(75) null,
@@ -13,7 +15,9 @@ create table CT_CTA_CTAction (
 
 create table CT_CTA_CTActionTotal (
 	CTActionTotalId LONG not null primary key,
+	companyId LONG,
 	campaignId LONG,
+	reportInstanceId LONG,
 	alias_ VARCHAR(75) null,
 	referrerClassName VARCHAR(75) null,
 	referrerClassPK LONG,

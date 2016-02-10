@@ -16,10 +16,13 @@ package com.liferay.content.targeting.service.base;
 
 import com.liferay.content.targeting.model.UserSegment;
 import com.liferay.content.targeting.service.UserSegmentLocalService;
+import com.liferay.content.targeting.service.persistence.AnonymousUserUserSegmentPersistence;
 import com.liferay.content.targeting.service.persistence.CampaignFinder;
 import com.liferay.content.targeting.service.persistence.CampaignPersistence;
+import com.liferay.content.targeting.service.persistence.ChannelInstancePersistence;
 import com.liferay.content.targeting.service.persistence.ReportInstancePersistence;
 import com.liferay.content.targeting.service.persistence.RuleInstancePersistence;
+import com.liferay.content.targeting.service.persistence.TacticPersistence;
 import com.liferay.content.targeting.service.persistence.TrackingActionInstancePersistence;
 import com.liferay.content.targeting.service.persistence.UserSegmentPersistence;
 
@@ -38,8 +41,12 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalServiceImpl;
 import com.liferay.portal.service.PersistedModelLocalServiceRegistryUtil;
+import com.liferay.portal.service.persistence.GroupPersistence;
 import com.liferay.portal.service.persistence.SystemEventPersistence;
 import com.liferay.portal.service.persistence.UserPersistence;
+
+import com.liferay.portlet.asset.service.persistence.AssetCategoryPersistence;
+import com.liferay.portlet.asset.service.persistence.AssetVocabularyPersistence;
 
 import java.io.Serializable;
 
@@ -492,6 +499,208 @@ public abstract class UserSegmentLocalServiceBaseImpl
 	}
 
 	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void addTacticUserSegment(long tacticId, long userSegmentId)
+		throws SystemException {
+		tacticPersistence.addUserSegment(tacticId, userSegmentId);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void addTacticUserSegment(long tacticId, UserSegment userSegment)
+		throws SystemException {
+		tacticPersistence.addUserSegment(tacticId, userSegment);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void addTacticUserSegments(long tacticId, long[] userSegmentIds)
+		throws SystemException {
+		tacticPersistence.addUserSegments(tacticId, userSegmentIds);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void addTacticUserSegments(long tacticId,
+		List<UserSegment> UserSegments) throws SystemException {
+		tacticPersistence.addUserSegments(tacticId, UserSegments);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void clearTacticUserSegments(long tacticId)
+		throws SystemException {
+		tacticPersistence.clearUserSegments(tacticId);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void deleteTacticUserSegment(long tacticId, long userSegmentId)
+		throws SystemException {
+		tacticPersistence.removeUserSegment(tacticId, userSegmentId);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void deleteTacticUserSegment(long tacticId, UserSegment userSegment)
+		throws SystemException {
+		tacticPersistence.removeUserSegment(tacticId, userSegment);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void deleteTacticUserSegments(long tacticId, long[] userSegmentIds)
+		throws SystemException {
+		tacticPersistence.removeUserSegments(tacticId, userSegmentIds);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void deleteTacticUserSegments(long tacticId,
+		List<UserSegment> UserSegments) throws SystemException {
+		tacticPersistence.removeUserSegments(tacticId, UserSegments);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public List<UserSegment> getTacticUserSegments(long tacticId)
+		throws SystemException {
+		return tacticPersistence.getUserSegments(tacticId);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public List<UserSegment> getTacticUserSegments(long tacticId, int start,
+		int end) throws SystemException {
+		return tacticPersistence.getUserSegments(tacticId, start, end);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public List<UserSegment> getTacticUserSegments(long tacticId, int start,
+		int end, OrderByComparator orderByComparator) throws SystemException {
+		return tacticPersistence.getUserSegments(tacticId, start, end,
+			orderByComparator);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public int getTacticUserSegmentsCount(long tacticId)
+		throws SystemException {
+		return tacticPersistence.getUserSegmentsSize(tacticId);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public boolean hasTacticUserSegment(long tacticId, long userSegmentId)
+		throws SystemException {
+		return tacticPersistence.containsUserSegment(tacticId, userSegmentId);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public boolean hasTacticUserSegments(long tacticId)
+		throws SystemException {
+		return tacticPersistence.containsUserSegments(tacticId);
+	}
+
+	/**
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public void setTacticUserSegments(long tacticId, long[] userSegmentIds)
+		throws SystemException {
+		tacticPersistence.setUserSegments(tacticId, userSegmentIds);
+	}
+
+	/**
+	 * Returns the anonymous user user segment local service.
+	 *
+	 * @return the anonymous user user segment local service
+	 */
+	public com.liferay.content.targeting.service.AnonymousUserUserSegmentLocalService getAnonymousUserUserSegmentLocalService() {
+		return anonymousUserUserSegmentLocalService;
+	}
+
+	/**
+	 * Sets the anonymous user user segment local service.
+	 *
+	 * @param anonymousUserUserSegmentLocalService the anonymous user user segment local service
+	 */
+	public void setAnonymousUserUserSegmentLocalService(
+		com.liferay.content.targeting.service.AnonymousUserUserSegmentLocalService anonymousUserUserSegmentLocalService) {
+		this.anonymousUserUserSegmentLocalService = anonymousUserUserSegmentLocalService;
+	}
+
+	/**
+	 * Returns the anonymous user user segment remote service.
+	 *
+	 * @return the anonymous user user segment remote service
+	 */
+	public com.liferay.content.targeting.service.AnonymousUserUserSegmentService getAnonymousUserUserSegmentService() {
+		return anonymousUserUserSegmentService;
+	}
+
+	/**
+	 * Sets the anonymous user user segment remote service.
+	 *
+	 * @param anonymousUserUserSegmentService the anonymous user user segment remote service
+	 */
+	public void setAnonymousUserUserSegmentService(
+		com.liferay.content.targeting.service.AnonymousUserUserSegmentService anonymousUserUserSegmentService) {
+		this.anonymousUserUserSegmentService = anonymousUserUserSegmentService;
+	}
+
+	/**
+	 * Returns the anonymous user user segment persistence.
+	 *
+	 * @return the anonymous user user segment persistence
+	 */
+	public AnonymousUserUserSegmentPersistence getAnonymousUserUserSegmentPersistence() {
+		return anonymousUserUserSegmentPersistence;
+	}
+
+	/**
+	 * Sets the anonymous user user segment persistence.
+	 *
+	 * @param anonymousUserUserSegmentPersistence the anonymous user user segment persistence
+	 */
+	public void setAnonymousUserUserSegmentPersistence(
+		AnonymousUserUserSegmentPersistence anonymousUserUserSegmentPersistence) {
+		this.anonymousUserUserSegmentPersistence = anonymousUserUserSegmentPersistence;
+	}
+
+	/**
 	 * Returns the campaign local service.
 	 *
 	 * @return the campaign local service
@@ -563,6 +772,63 @@ public abstract class UserSegmentLocalServiceBaseImpl
 	 */
 	public void setCampaignFinder(CampaignFinder campaignFinder) {
 		this.campaignFinder = campaignFinder;
+	}
+
+	/**
+	 * Returns the channel instance local service.
+	 *
+	 * @return the channel instance local service
+	 */
+	public com.liferay.content.targeting.service.ChannelInstanceLocalService getChannelInstanceLocalService() {
+		return channelInstanceLocalService;
+	}
+
+	/**
+	 * Sets the channel instance local service.
+	 *
+	 * @param channelInstanceLocalService the channel instance local service
+	 */
+	public void setChannelInstanceLocalService(
+		com.liferay.content.targeting.service.ChannelInstanceLocalService channelInstanceLocalService) {
+		this.channelInstanceLocalService = channelInstanceLocalService;
+	}
+
+	/**
+	 * Returns the channel instance remote service.
+	 *
+	 * @return the channel instance remote service
+	 */
+	public com.liferay.content.targeting.service.ChannelInstanceService getChannelInstanceService() {
+		return channelInstanceService;
+	}
+
+	/**
+	 * Sets the channel instance remote service.
+	 *
+	 * @param channelInstanceService the channel instance remote service
+	 */
+	public void setChannelInstanceService(
+		com.liferay.content.targeting.service.ChannelInstanceService channelInstanceService) {
+		this.channelInstanceService = channelInstanceService;
+	}
+
+	/**
+	 * Returns the channel instance persistence.
+	 *
+	 * @return the channel instance persistence
+	 */
+	public ChannelInstancePersistence getChannelInstancePersistence() {
+		return channelInstancePersistence;
+	}
+
+	/**
+	 * Sets the channel instance persistence.
+	 *
+	 * @param channelInstancePersistence the channel instance persistence
+	 */
+	public void setChannelInstancePersistence(
+		ChannelInstancePersistence channelInstancePersistence) {
+		this.channelInstancePersistence = channelInstancePersistence;
 	}
 
 	/**
@@ -677,6 +943,62 @@ public abstract class UserSegmentLocalServiceBaseImpl
 	public void setRuleInstancePersistence(
 		RuleInstancePersistence ruleInstancePersistence) {
 		this.ruleInstancePersistence = ruleInstancePersistence;
+	}
+
+	/**
+	 * Returns the tactic local service.
+	 *
+	 * @return the tactic local service
+	 */
+	public com.liferay.content.targeting.service.TacticLocalService getTacticLocalService() {
+		return tacticLocalService;
+	}
+
+	/**
+	 * Sets the tactic local service.
+	 *
+	 * @param tacticLocalService the tactic local service
+	 */
+	public void setTacticLocalService(
+		com.liferay.content.targeting.service.TacticLocalService tacticLocalService) {
+		this.tacticLocalService = tacticLocalService;
+	}
+
+	/**
+	 * Returns the tactic remote service.
+	 *
+	 * @return the tactic remote service
+	 */
+	public com.liferay.content.targeting.service.TacticService getTacticService() {
+		return tacticService;
+	}
+
+	/**
+	 * Sets the tactic remote service.
+	 *
+	 * @param tacticService the tactic remote service
+	 */
+	public void setTacticService(
+		com.liferay.content.targeting.service.TacticService tacticService) {
+		this.tacticService = tacticService;
+	}
+
+	/**
+	 * Returns the tactic persistence.
+	 *
+	 * @return the tactic persistence
+	 */
+	public TacticPersistence getTacticPersistence() {
+		return tacticPersistence;
+	}
+
+	/**
+	 * Sets the tactic persistence.
+	 *
+	 * @param tacticPersistence the tactic persistence
+	 */
+	public void setTacticPersistence(TacticPersistence tacticPersistence) {
+		this.tacticPersistence = tacticPersistence;
 	}
 
 	/**
@@ -813,6 +1135,62 @@ public abstract class UserSegmentLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the group local service.
+	 *
+	 * @return the group local service
+	 */
+	public com.liferay.portal.service.GroupLocalService getGroupLocalService() {
+		return groupLocalService;
+	}
+
+	/**
+	 * Sets the group local service.
+	 *
+	 * @param groupLocalService the group local service
+	 */
+	public void setGroupLocalService(
+		com.liferay.portal.service.GroupLocalService groupLocalService) {
+		this.groupLocalService = groupLocalService;
+	}
+
+	/**
+	 * Returns the group remote service.
+	 *
+	 * @return the group remote service
+	 */
+	public com.liferay.portal.service.GroupService getGroupService() {
+		return groupService;
+	}
+
+	/**
+	 * Sets the group remote service.
+	 *
+	 * @param groupService the group remote service
+	 */
+	public void setGroupService(
+		com.liferay.portal.service.GroupService groupService) {
+		this.groupService = groupService;
+	}
+
+	/**
+	 * Returns the group persistence.
+	 *
+	 * @return the group persistence
+	 */
+	public GroupPersistence getGroupPersistence() {
+		return groupPersistence;
+	}
+
+	/**
+	 * Sets the group persistence.
+	 *
+	 * @param groupPersistence the group persistence
+	 */
+	public void setGroupPersistence(GroupPersistence groupPersistence) {
+		this.groupPersistence = groupPersistence;
+	}
+
+	/**
 	 * Returns the resource local service.
 	 *
 	 * @return the resource local service
@@ -925,6 +1303,120 @@ public abstract class UserSegmentLocalServiceBaseImpl
 		this.userPersistence = userPersistence;
 	}
 
+	/**
+	 * Returns the asset category local service.
+	 *
+	 * @return the asset category local service
+	 */
+	public com.liferay.portlet.asset.service.AssetCategoryLocalService getAssetCategoryLocalService() {
+		return assetCategoryLocalService;
+	}
+
+	/**
+	 * Sets the asset category local service.
+	 *
+	 * @param assetCategoryLocalService the asset category local service
+	 */
+	public void setAssetCategoryLocalService(
+		com.liferay.portlet.asset.service.AssetCategoryLocalService assetCategoryLocalService) {
+		this.assetCategoryLocalService = assetCategoryLocalService;
+	}
+
+	/**
+	 * Returns the asset category remote service.
+	 *
+	 * @return the asset category remote service
+	 */
+	public com.liferay.portlet.asset.service.AssetCategoryService getAssetCategoryService() {
+		return assetCategoryService;
+	}
+
+	/**
+	 * Sets the asset category remote service.
+	 *
+	 * @param assetCategoryService the asset category remote service
+	 */
+	public void setAssetCategoryService(
+		com.liferay.portlet.asset.service.AssetCategoryService assetCategoryService) {
+		this.assetCategoryService = assetCategoryService;
+	}
+
+	/**
+	 * Returns the asset category persistence.
+	 *
+	 * @return the asset category persistence
+	 */
+	public AssetCategoryPersistence getAssetCategoryPersistence() {
+		return assetCategoryPersistence;
+	}
+
+	/**
+	 * Sets the asset category persistence.
+	 *
+	 * @param assetCategoryPersistence the asset category persistence
+	 */
+	public void setAssetCategoryPersistence(
+		AssetCategoryPersistence assetCategoryPersistence) {
+		this.assetCategoryPersistence = assetCategoryPersistence;
+	}
+
+	/**
+	 * Returns the asset vocabulary local service.
+	 *
+	 * @return the asset vocabulary local service
+	 */
+	public com.liferay.portlet.asset.service.AssetVocabularyLocalService getAssetVocabularyLocalService() {
+		return assetVocabularyLocalService;
+	}
+
+	/**
+	 * Sets the asset vocabulary local service.
+	 *
+	 * @param assetVocabularyLocalService the asset vocabulary local service
+	 */
+	public void setAssetVocabularyLocalService(
+		com.liferay.portlet.asset.service.AssetVocabularyLocalService assetVocabularyLocalService) {
+		this.assetVocabularyLocalService = assetVocabularyLocalService;
+	}
+
+	/**
+	 * Returns the asset vocabulary remote service.
+	 *
+	 * @return the asset vocabulary remote service
+	 */
+	public com.liferay.portlet.asset.service.AssetVocabularyService getAssetVocabularyService() {
+		return assetVocabularyService;
+	}
+
+	/**
+	 * Sets the asset vocabulary remote service.
+	 *
+	 * @param assetVocabularyService the asset vocabulary remote service
+	 */
+	public void setAssetVocabularyService(
+		com.liferay.portlet.asset.service.AssetVocabularyService assetVocabularyService) {
+		this.assetVocabularyService = assetVocabularyService;
+	}
+
+	/**
+	 * Returns the asset vocabulary persistence.
+	 *
+	 * @return the asset vocabulary persistence
+	 */
+	public AssetVocabularyPersistence getAssetVocabularyPersistence() {
+		return assetVocabularyPersistence;
+	}
+
+	/**
+	 * Sets the asset vocabulary persistence.
+	 *
+	 * @param assetVocabularyPersistence the asset vocabulary persistence
+	 */
+	public void setAssetVocabularyPersistence(
+		AssetVocabularyPersistence assetVocabularyPersistence) {
+		this.assetVocabularyPersistence = assetVocabularyPersistence;
+	}
+
 	public void afterPropertiesSet() {
 		Class<?> clazz = getClass();
 
@@ -1007,6 +1499,12 @@ public abstract class UserSegmentLocalServiceBaseImpl
 		}
 	}
 
+	@BeanReference(type = com.liferay.content.targeting.service.AnonymousUserUserSegmentLocalService.class)
+	protected com.liferay.content.targeting.service.AnonymousUserUserSegmentLocalService anonymousUserUserSegmentLocalService;
+	@BeanReference(type = com.liferay.content.targeting.service.AnonymousUserUserSegmentService.class)
+	protected com.liferay.content.targeting.service.AnonymousUserUserSegmentService anonymousUserUserSegmentService;
+	@BeanReference(type = AnonymousUserUserSegmentPersistence.class)
+	protected AnonymousUserUserSegmentPersistence anonymousUserUserSegmentPersistence;
 	@BeanReference(type = com.liferay.content.targeting.service.CampaignLocalService.class)
 	protected com.liferay.content.targeting.service.CampaignLocalService campaignLocalService;
 	@BeanReference(type = com.liferay.content.targeting.service.CampaignService.class)
@@ -1015,6 +1513,12 @@ public abstract class UserSegmentLocalServiceBaseImpl
 	protected CampaignPersistence campaignPersistence;
 	@BeanReference(type = CampaignFinder.class)
 	protected CampaignFinder campaignFinder;
+	@BeanReference(type = com.liferay.content.targeting.service.ChannelInstanceLocalService.class)
+	protected com.liferay.content.targeting.service.ChannelInstanceLocalService channelInstanceLocalService;
+	@BeanReference(type = com.liferay.content.targeting.service.ChannelInstanceService.class)
+	protected com.liferay.content.targeting.service.ChannelInstanceService channelInstanceService;
+	@BeanReference(type = ChannelInstancePersistence.class)
+	protected ChannelInstancePersistence channelInstancePersistence;
 	@BeanReference(type = com.liferay.content.targeting.service.ReportInstanceLocalService.class)
 	protected com.liferay.content.targeting.service.ReportInstanceLocalService reportInstanceLocalService;
 	@BeanReference(type = com.liferay.content.targeting.service.ReportInstanceService.class)
@@ -1027,6 +1531,12 @@ public abstract class UserSegmentLocalServiceBaseImpl
 	protected com.liferay.content.targeting.service.RuleInstanceService ruleInstanceService;
 	@BeanReference(type = RuleInstancePersistence.class)
 	protected RuleInstancePersistence ruleInstancePersistence;
+	@BeanReference(type = com.liferay.content.targeting.service.TacticLocalService.class)
+	protected com.liferay.content.targeting.service.TacticLocalService tacticLocalService;
+	@BeanReference(type = com.liferay.content.targeting.service.TacticService.class)
+	protected com.liferay.content.targeting.service.TacticService tacticService;
+	@BeanReference(type = TacticPersistence.class)
+	protected TacticPersistence tacticPersistence;
 	@BeanReference(type = com.liferay.content.targeting.service.TrackingActionInstanceLocalService.class)
 	protected com.liferay.content.targeting.service.TrackingActionInstanceLocalService trackingActionInstanceLocalService;
 	@BeanReference(type = com.liferay.content.targeting.service.TrackingActionInstanceService.class)
@@ -1041,6 +1551,12 @@ public abstract class UserSegmentLocalServiceBaseImpl
 	protected UserSegmentPersistence userSegmentPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
 	protected com.liferay.counter.service.CounterLocalService counterLocalService;
+	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
+	protected com.liferay.portal.service.GroupLocalService groupLocalService;
+	@BeanReference(type = com.liferay.portal.service.GroupService.class)
+	protected com.liferay.portal.service.GroupService groupService;
+	@BeanReference(type = GroupPersistence.class)
+	protected GroupPersistence groupPersistence;
 	@BeanReference(type = com.liferay.portal.service.ResourceLocalService.class)
 	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
 	@BeanReference(type = com.liferay.portal.service.SystemEventLocalService.class)
@@ -1053,6 +1569,18 @@ public abstract class UserSegmentLocalServiceBaseImpl
 	protected com.liferay.portal.service.UserService userService;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
+	@BeanReference(type = com.liferay.portlet.asset.service.AssetCategoryLocalService.class)
+	protected com.liferay.portlet.asset.service.AssetCategoryLocalService assetCategoryLocalService;
+	@BeanReference(type = com.liferay.portlet.asset.service.AssetCategoryService.class)
+	protected com.liferay.portlet.asset.service.AssetCategoryService assetCategoryService;
+	@BeanReference(type = AssetCategoryPersistence.class)
+	protected AssetCategoryPersistence assetCategoryPersistence;
+	@BeanReference(type = com.liferay.portlet.asset.service.AssetVocabularyLocalService.class)
+	protected com.liferay.portlet.asset.service.AssetVocabularyLocalService assetVocabularyLocalService;
+	@BeanReference(type = com.liferay.portlet.asset.service.AssetVocabularyService.class)
+	protected com.liferay.portlet.asset.service.AssetVocabularyService assetVocabularyService;
+	@BeanReference(type = AssetVocabularyPersistence.class)
+	protected AssetVocabularyPersistence assetVocabularyPersistence;
 	private String _beanIdentifier;
 	private ClassLoader _classLoader;
 	private UserSegmentLocalServiceClpInvoker _clpInvoker = new UserSegmentLocalServiceClpInvoker();

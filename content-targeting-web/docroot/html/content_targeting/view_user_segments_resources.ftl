@@ -1,6 +1,6 @@
 <#--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -37,12 +37,22 @@
 		modelVar="userSegment"
 	>
 
-	<@liferay_ui["search-container-column-text"]
-		name="name"
-		value=userSegment.getName(locale)
-	/>
+		<#if userSegmentPermission.contains(permissionChecker, userSegment, actionKeys.UPDATE)>
+			<@portlet["renderURL"] var="editUserSegmentURL">
+				<@portlet["param"] name="mvcPath" value="${contentTargetingPath.EDIT_USER_SEGMENT}" />
+				<@portlet["param"] name="redirect" value="${viewUserSegmentsURL}" />
+				<@portlet["param"] name="userSegmentId" value="${userSegment.getUserSegmentId()?string}" />
+			</@>
+		</#if>
 
 		<@liferay_ui["search-container-column-text"]
+			href=editUserSegmentURL
+			name="name"
+			value=userSegment.getName(locale)
+		/>
+
+		<@liferay_ui["search-container-column-text"]
+			href=editUserSegmentURL
 			name="description"
 			value=userSegment.getDescription(locale)
 		/>
@@ -52,33 +62,31 @@
 			name=""
 		>
 			<@liferay_ui["icon-menu"]>
-				<@portlet["renderURL"] var="viewUserSegmentReportsURL">
-					<@portlet["param"] name="mvcPath" value="${contentTargetingPath.VIEW_REPORTS}" />
-					<@portlet["param"] name="redirect" value="${viewUserSegmentsURL}" />
-					<@portlet["param"] name="className" value="${userSegmentClass.getName()}" />
-					<@portlet["param"] name="classPK" value="${userSegment.getUserSegmentId()?string}" />
-				</@>
-
-				<@liferay_ui["icon"]
-					image="view"
-					label=true
-					message="reports"
-					method="get"
-					url="${viewUserSegmentReportsURL}"
-				/>
-
-				<#if userSegmentPermission.contains(permissionChecker, userSegment, actionKeys.UPDATE)>
-					<@portlet["renderURL"] var="editUserSegmentURL">
-						<@portlet["param"] name="mvcPath" value="${contentTargetingPath.EDIT_USER_SEGMENT}" />
-						<@portlet["param"] name="redirect" value="${viewUserSegmentsURL}" />
-						<@portlet["param"] name="userSegmentId" value="${userSegment.getUserSegmentId()?string}" />
-					</@>
-
+				<#if editUserSegmentURL??>
 					<@liferay_ui["icon"]
 						image="edit"
 						method="get"
 						url="${editUserSegmentURL}"
 					/>
+
+					<#if (reportsCount > 0)>
+						<@portlet["renderURL"] var="viewUserSegmentReportsURL">
+							<@portlet["param"] name="mvcPath" value="${contentTargetingPath.EDIT_USER_SEGMENT}" />
+							<@portlet["param"] name="redirect" value="${viewUserSegmentsURL}" />
+							<@portlet["param"] name="className" value="${userSegmentClass.getName()}" />
+							<@portlet["param"] name="classPK" value="${userSegment.getUserSegmentId()?string}" />
+							<@portlet["param"] name="userSegmentId" value="${userSegment.getUserSegmentId()?string}" />
+							<@portlet["param"] name="tabs2" value="reports" />
+						</@>
+
+						<@liferay_ui["icon"]
+							image="view"
+							label=true
+							message="reports"
+							method="get"
+							url="${viewUserSegmentReportsURL}"
+						/>
+					</#if>
 				</#if>
 
 				<#if userSegmentPermission.contains(permissionChecker, userSegment, actionKeys.DELETE)>

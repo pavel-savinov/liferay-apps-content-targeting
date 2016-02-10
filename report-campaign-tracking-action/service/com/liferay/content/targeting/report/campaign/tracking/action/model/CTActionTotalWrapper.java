@@ -51,7 +51,9 @@ public class CTActionTotalWrapper implements CTActionTotal,
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("CTActionTotalId", getCTActionTotalId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("campaignId", getCampaignId());
+		attributes.put("reportInstanceId", getReportInstanceId());
 		attributes.put("alias", getAlias());
 		attributes.put("referrerClassName", getReferrerClassName());
 		attributes.put("referrerClassPK", getReferrerClassPK());
@@ -71,10 +73,22 @@ public class CTActionTotalWrapper implements CTActionTotal,
 			setCTActionTotalId(CTActionTotalId);
 		}
 
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
+		}
+
 		Long campaignId = (Long)attributes.get("campaignId");
 
 		if (campaignId != null) {
 			setCampaignId(campaignId);
+		}
+
+		Long reportInstanceId = (Long)attributes.get("reportInstanceId");
+
+		if (reportInstanceId != null) {
+			setReportInstanceId(reportInstanceId);
 		}
 
 		String alias = (String)attributes.get("alias");
@@ -161,6 +175,26 @@ public class CTActionTotalWrapper implements CTActionTotal,
 	}
 
 	/**
+	* Returns the company ID of this c t action total.
+	*
+	* @return the company ID of this c t action total
+	*/
+	@Override
+	public long getCompanyId() {
+		return _ctActionTotal.getCompanyId();
+	}
+
+	/**
+	* Sets the company ID of this c t action total.
+	*
+	* @param companyId the company ID of this c t action total
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_ctActionTotal.setCompanyId(companyId);
+	}
+
+	/**
 	* Returns the campaign ID of this c t action total.
 	*
 	* @return the campaign ID of this c t action total
@@ -178,6 +212,26 @@ public class CTActionTotalWrapper implements CTActionTotal,
 	@Override
 	public void setCampaignId(long campaignId) {
 		_ctActionTotal.setCampaignId(campaignId);
+	}
+
+	/**
+	* Returns the report instance ID of this c t action total.
+	*
+	* @return the report instance ID of this c t action total
+	*/
+	@Override
+	public long getReportInstanceId() {
+		return _ctActionTotal.getReportInstanceId();
+	}
+
+	/**
+	* Sets the report instance ID of this c t action total.
+	*
+	* @param reportInstanceId the report instance ID of this c t action total
+	*/
+	@Override
+	public void setReportInstanceId(long reportInstanceId) {
+		_ctActionTotal.setReportInstanceId(reportInstanceId);
 	}
 
 	/**

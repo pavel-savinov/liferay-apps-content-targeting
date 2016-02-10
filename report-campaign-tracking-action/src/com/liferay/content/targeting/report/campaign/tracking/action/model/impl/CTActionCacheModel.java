@@ -37,12 +37,16 @@ import java.util.Date;
 public class CTActionCacheModel implements CacheModel<CTAction>, Externalizable {
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(21);
+		StringBundler sb = new StringBundler(25);
 
 		sb.append("{CTActionId=");
 		sb.append(CTActionId);
+		sb.append(", companyId=");
+		sb.append(companyId);
 		sb.append(", campaignId=");
 		sb.append(campaignId);
+		sb.append(", reportInstanceId=");
+		sb.append(reportInstanceId);
 		sb.append(", userSegmentId=");
 		sb.append(userSegmentId);
 		sb.append(", alias=");
@@ -69,7 +73,9 @@ public class CTActionCacheModel implements CacheModel<CTAction>, Externalizable 
 		CTActionImpl ctActionImpl = new CTActionImpl();
 
 		ctActionImpl.setCTActionId(CTActionId);
+		ctActionImpl.setCompanyId(companyId);
 		ctActionImpl.setCampaignId(campaignId);
+		ctActionImpl.setReportInstanceId(reportInstanceId);
 		ctActionImpl.setUserSegmentId(userSegmentId);
 
 		if (alias == null) {
@@ -119,7 +125,9 @@ public class CTActionCacheModel implements CacheModel<CTAction>, Externalizable 
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		CTActionId = objectInput.readLong();
+		companyId = objectInput.readLong();
 		campaignId = objectInput.readLong();
+		reportInstanceId = objectInput.readLong();
 		userSegmentId = objectInput.readLong();
 		alias = objectInput.readUTF();
 		referrerClassName = objectInput.readUTF();
@@ -134,7 +142,9 @@ public class CTActionCacheModel implements CacheModel<CTAction>, Externalizable 
 	public void writeExternal(ObjectOutput objectOutput)
 		throws IOException {
 		objectOutput.writeLong(CTActionId);
+		objectOutput.writeLong(companyId);
 		objectOutput.writeLong(campaignId);
+		objectOutput.writeLong(reportInstanceId);
 		objectOutput.writeLong(userSegmentId);
 
 		if (alias == null) {
@@ -172,7 +182,9 @@ public class CTActionCacheModel implements CacheModel<CTAction>, Externalizable 
 	}
 
 	public long CTActionId;
+	public long companyId;
 	public long campaignId;
+	public long reportInstanceId;
 	public long userSegmentId;
 	public String alias;
 	public String referrerClassName;

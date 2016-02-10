@@ -18,13 +18,18 @@ import com.liferay.content.targeting.model.ReportInstance;
 import com.liferay.content.targeting.model.ReportInstanceModel;
 import com.liferay.content.targeting.model.ReportInstanceSoap;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.impl.BaseModelImpl;
 import com.liferay.portal.service.ServiceContext;
@@ -41,7 +46,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The base model implementation for the ReportInstance service. Represents a row in the &quot;CT_ReportInstance&quot; database table, with each column mapped to a property of this class.
@@ -66,18 +74,22 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 	 */
 	public static final String TABLE_NAME = "CT_ReportInstance";
 	public static final Object[][] TABLE_COLUMNS = {
+			{ "uuid_", Types.VARCHAR },
 			{ "reportInstanceId", Types.BIGINT },
 			{ "groupId", Types.BIGINT },
 			{ "companyId", Types.BIGINT },
 			{ "userId", Types.BIGINT },
 			{ "userName", Types.VARCHAR },
+			{ "createDate", Types.TIMESTAMP },
 			{ "modifiedDate", Types.TIMESTAMP },
 			{ "reportKey", Types.VARCHAR },
+			{ "name", Types.VARCHAR },
+			{ "description", Types.VARCHAR },
 			{ "className", Types.VARCHAR },
 			{ "classPK", Types.BIGINT },
 			{ "typeSettings", Types.CLOB }
 		};
-	public static final String TABLE_SQL_CREATE = "create table CT_ReportInstance (reportInstanceId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,modifiedDate DATE null,reportKey VARCHAR(75) null,className VARCHAR(75) null,classPK LONG,typeSettings TEXT null)";
+	public static final String TABLE_SQL_CREATE = "create table CT_ReportInstance (uuid_ VARCHAR(75) null,reportInstanceId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,reportKey VARCHAR(75) null,name STRING null,description STRING null,className VARCHAR(75) null,classPK LONG,typeSettings TEXT null)";
 	public static final String TABLE_SQL_DROP = "drop table CT_ReportInstance";
 	public static final String ORDER_BY_JPQL = " ORDER BY reportInstance.reportKey DESC";
 	public static final String ORDER_BY_SQL = " ORDER BY CT_ReportInstance.reportKey DESC";
@@ -95,7 +107,10 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 			true);
 	public static long CLASSNAME_COLUMN_BITMASK = 1L;
 	public static long CLASSPK_COLUMN_BITMASK = 2L;
-	public static long REPORTKEY_COLUMN_BITMASK = 4L;
+	public static long COMPANYID_COLUMN_BITMASK = 4L;
+	public static long GROUPID_COLUMN_BITMASK = 8L;
+	public static long REPORTKEY_COLUMN_BITMASK = 16L;
+	public static long UUID_COLUMN_BITMASK = 32L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -110,13 +125,17 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 		ReportInstance model = new ReportInstanceImpl();
 
+		model.setUuid(soapModel.getUuid());
 		model.setReportInstanceId(soapModel.getReportInstanceId());
 		model.setGroupId(soapModel.getGroupId());
 		model.setCompanyId(soapModel.getCompanyId());
 		model.setUserId(soapModel.getUserId());
 		model.setUserName(soapModel.getUserName());
+		model.setCreateDate(soapModel.getCreateDate());
 		model.setModifiedDate(soapModel.getModifiedDate());
 		model.setReportKey(soapModel.getReportKey());
+		model.setName(soapModel.getName());
+		model.setDescription(soapModel.getDescription());
 		model.setClassName(soapModel.getClassName());
 		model.setClassPK(soapModel.getClassPK());
 		model.setTypeSettings(soapModel.getTypeSettings());
@@ -184,13 +203,17 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("uuid", getUuid());
 		attributes.put("reportInstanceId", getReportInstanceId());
 		attributes.put("groupId", getGroupId());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
 		attributes.put("userName", getUserName());
+		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("reportKey", getReportKey());
+		attributes.put("name", getName());
+		attributes.put("description", getDescription());
 		attributes.put("className", getClassName());
 		attributes.put("classPK", getClassPK());
 		attributes.put("typeSettings", getTypeSettings());
@@ -200,6 +223,12 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 	@Override
 	public void setModelAttributes(Map<String, Object> attributes) {
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
+		}
+
 		Long reportInstanceId = (Long)attributes.get("reportInstanceId");
 
 		if (reportInstanceId != null) {
@@ -230,6 +259,12 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 			setUserName(userName);
 		}
 
+		Date createDate = (Date)attributes.get("createDate");
+
+		if (createDate != null) {
+			setCreateDate(createDate);
+		}
+
 		Date modifiedDate = (Date)attributes.get("modifiedDate");
 
 		if (modifiedDate != null) {
@@ -240,6 +275,18 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 		if (reportKey != null) {
 			setReportKey(reportKey);
+		}
+
+		String name = (String)attributes.get("name");
+
+		if (name != null) {
+			setName(name);
+		}
+
+		String description = (String)attributes.get("description");
+
+		if (description != null) {
+			setDescription(description);
 		}
 
 		String className = (String)attributes.get("className");
@@ -263,6 +310,30 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 	@JSON
 	@Override
+	public String getUuid() {
+		if (_uuid == null) {
+			return StringPool.BLANK;
+		}
+		else {
+			return _uuid;
+		}
+	}
+
+	@Override
+	public void setUuid(String uuid) {
+		if (_originalUuid == null) {
+			_originalUuid = _uuid;
+		}
+
+		_uuid = uuid;
+	}
+
+	public String getOriginalUuid() {
+		return GetterUtil.getString(_originalUuid);
+	}
+
+	@JSON
+	@Override
 	public long getReportInstanceId() {
 		return _reportInstanceId;
 	}
@@ -280,7 +351,19 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 	@Override
 	public void setGroupId(long groupId) {
+		_columnBitmask |= GROUPID_COLUMN_BITMASK;
+
+		if (!_setOriginalGroupId) {
+			_setOriginalGroupId = true;
+
+			_originalGroupId = _groupId;
+		}
+
 		_groupId = groupId;
+	}
+
+	public long getOriginalGroupId() {
+		return _originalGroupId;
 	}
 
 	@JSON
@@ -291,7 +374,19 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 	@Override
 	public void setCompanyId(long companyId) {
+		_columnBitmask |= COMPANYID_COLUMN_BITMASK;
+
+		if (!_setOriginalCompanyId) {
+			_setOriginalCompanyId = true;
+
+			_originalCompanyId = _companyId;
+		}
+
 		_companyId = companyId;
+	}
+
+	public long getOriginalCompanyId() {
+		return _originalCompanyId;
 	}
 
 	@JSON
@@ -333,6 +428,17 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 	@JSON
 	@Override
+	public Date getCreateDate() {
+		return _createDate;
+	}
+
+	@Override
+	public void setCreateDate(Date createDate) {
+		_createDate = createDate;
+	}
+
+	@JSON
+	@Override
 	public Date getModifiedDate() {
 		return _modifiedDate;
 	}
@@ -366,6 +472,208 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 	public String getOriginalReportKey() {
 		return GetterUtil.getString(_originalReportKey);
+	}
+
+	@JSON
+	@Override
+	public String getName() {
+		if (_name == null) {
+			return StringPool.BLANK;
+		}
+		else {
+			return _name;
+		}
+	}
+
+	@Override
+	public String getName(Locale locale) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		return getName(languageId);
+	}
+
+	@Override
+	public String getName(Locale locale, boolean useDefault) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		return getName(languageId, useDefault);
+	}
+
+	@Override
+	public String getName(String languageId) {
+		return LocalizationUtil.getLocalization(getName(), languageId);
+	}
+
+	@Override
+	public String getName(String languageId, boolean useDefault) {
+		return LocalizationUtil.getLocalization(getName(), languageId,
+			useDefault);
+	}
+
+	@Override
+	public String getNameCurrentLanguageId() {
+		return _nameCurrentLanguageId;
+	}
+
+	@JSON
+	@Override
+	public String getNameCurrentValue() {
+		Locale locale = getLocale(_nameCurrentLanguageId);
+
+		return getName(locale);
+	}
+
+	@Override
+	public Map<Locale, String> getNameMap() {
+		return LocalizationUtil.getLocalizationMap(getName());
+	}
+
+	@Override
+	public void setName(String name) {
+		_name = name;
+	}
+
+	@Override
+	public void setName(String name, Locale locale) {
+		setName(name, locale, LocaleUtil.getSiteDefault());
+	}
+
+	@Override
+	public void setName(String name, Locale locale, Locale defaultLocale) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+		String defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
+
+		if (Validator.isNotNull(name)) {
+			setName(LocalizationUtil.updateLocalization(getName(), "Name",
+					name, languageId, defaultLanguageId));
+		}
+		else {
+			setName(LocalizationUtil.removeLocalization(getName(), "Name",
+					languageId));
+		}
+	}
+
+	@Override
+	public void setNameCurrentLanguageId(String languageId) {
+		_nameCurrentLanguageId = languageId;
+	}
+
+	@Override
+	public void setNameMap(Map<Locale, String> nameMap) {
+		setNameMap(nameMap, LocaleUtil.getSiteDefault());
+	}
+
+	@Override
+	public void setNameMap(Map<Locale, String> nameMap, Locale defaultLocale) {
+		if (nameMap == null) {
+			return;
+		}
+
+		setName(LocalizationUtil.updateLocalization(nameMap, getName(), "Name",
+				LocaleUtil.toLanguageId(defaultLocale)));
+	}
+
+	@JSON
+	@Override
+	public String getDescription() {
+		if (_description == null) {
+			return StringPool.BLANK;
+		}
+		else {
+			return _description;
+		}
+	}
+
+	@Override
+	public String getDescription(Locale locale) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		return getDescription(languageId);
+	}
+
+	@Override
+	public String getDescription(Locale locale, boolean useDefault) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		return getDescription(languageId, useDefault);
+	}
+
+	@Override
+	public String getDescription(String languageId) {
+		return LocalizationUtil.getLocalization(getDescription(), languageId);
+	}
+
+	@Override
+	public String getDescription(String languageId, boolean useDefault) {
+		return LocalizationUtil.getLocalization(getDescription(), languageId,
+			useDefault);
+	}
+
+	@Override
+	public String getDescriptionCurrentLanguageId() {
+		return _descriptionCurrentLanguageId;
+	}
+
+	@JSON
+	@Override
+	public String getDescriptionCurrentValue() {
+		Locale locale = getLocale(_descriptionCurrentLanguageId);
+
+		return getDescription(locale);
+	}
+
+	@Override
+	public Map<Locale, String> getDescriptionMap() {
+		return LocalizationUtil.getLocalizationMap(getDescription());
+	}
+
+	@Override
+	public void setDescription(String description) {
+		_description = description;
+	}
+
+	@Override
+	public void setDescription(String description, Locale locale) {
+		setDescription(description, locale, LocaleUtil.getSiteDefault());
+	}
+
+	@Override
+	public void setDescription(String description, Locale locale,
+		Locale defaultLocale) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+		String defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
+
+		if (Validator.isNotNull(description)) {
+			setDescription(LocalizationUtil.updateLocalization(
+					getDescription(), "Description", description, languageId,
+					defaultLanguageId));
+		}
+		else {
+			setDescription(LocalizationUtil.removeLocalization(
+					getDescription(), "Description", languageId));
+		}
+	}
+
+	@Override
+	public void setDescriptionCurrentLanguageId(String languageId) {
+		_descriptionCurrentLanguageId = languageId;
+	}
+
+	@Override
+	public void setDescriptionMap(Map<Locale, String> descriptionMap) {
+		setDescriptionMap(descriptionMap, LocaleUtil.getSiteDefault());
+	}
+
+	@Override
+	public void setDescriptionMap(Map<Locale, String> descriptionMap,
+		Locale defaultLocale) {
+		if (descriptionMap == null) {
+			return;
+		}
+
+		setDescription(LocalizationUtil.updateLocalization(descriptionMap,
+				getDescription(), "Description",
+				LocaleUtil.toLanguageId(defaultLocale)));
 	}
 
 	@JSON
@@ -433,6 +741,12 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 		_typeSettings = typeSettings;
 	}
 
+	@Override
+	public StagedModelType getStagedModelType() {
+		return new StagedModelType(PortalUtil.getClassNameId(
+				ReportInstance.class.getName()));
+	}
+
 	public long getColumnBitmask() {
 		return _columnBitmask;
 	}
@@ -451,6 +765,81 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 	}
 
 	@Override
+	public String[] getAvailableLanguageIds() {
+		Set<String> availableLanguageIds = new TreeSet<String>();
+
+		Map<Locale, String> nameMap = getNameMap();
+
+		for (Map.Entry<Locale, String> entry : nameMap.entrySet()) {
+			Locale locale = entry.getKey();
+			String value = entry.getValue();
+
+			if (Validator.isNotNull(value)) {
+				availableLanguageIds.add(LocaleUtil.toLanguageId(locale));
+			}
+		}
+
+		Map<Locale, String> descriptionMap = getDescriptionMap();
+
+		for (Map.Entry<Locale, String> entry : descriptionMap.entrySet()) {
+			Locale locale = entry.getKey();
+			String value = entry.getValue();
+
+			if (Validator.isNotNull(value)) {
+				availableLanguageIds.add(LocaleUtil.toLanguageId(locale));
+			}
+		}
+
+		return availableLanguageIds.toArray(new String[availableLanguageIds.size()]);
+	}
+
+	@Override
+	public String getDefaultLanguageId() {
+		String xml = getName();
+
+		if (xml == null) {
+			return StringPool.BLANK;
+		}
+
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
+
+		return LocalizationUtil.getDefaultLanguageId(xml, defaultLocale);
+	}
+
+	@Override
+	public void prepareLocalizedFieldsForImport() throws LocaleException {
+		prepareLocalizedFieldsForImport(null);
+	}
+
+	@Override
+	@SuppressWarnings("unused")
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException {
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
+
+		String modelDefaultLanguageId = getDefaultLanguageId();
+
+		String name = getName(defaultLocale);
+
+		if (Validator.isNull(name)) {
+			setName(getName(modelDefaultLanguageId), defaultLocale);
+		}
+		else {
+			setName(getName(defaultLocale), defaultLocale, defaultLocale);
+		}
+
+		String description = getDescription(defaultLocale);
+
+		if (Validator.isNull(description)) {
+			setDescription(getDescription(modelDefaultLanguageId), defaultLocale);
+		}
+		else {
+			setDescription(getDescription(defaultLocale), defaultLocale,
+				defaultLocale);
+		}
+	}
+
+	@Override
 	public ReportInstance toEscapedModel() {
 		if (_escapedModel == null) {
 			_escapedModel = (ReportInstance)ProxyUtil.newProxyInstance(_classLoader,
@@ -464,13 +853,17 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 	public Object clone() {
 		ReportInstanceImpl reportInstanceImpl = new ReportInstanceImpl();
 
+		reportInstanceImpl.setUuid(getUuid());
 		reportInstanceImpl.setReportInstanceId(getReportInstanceId());
 		reportInstanceImpl.setGroupId(getGroupId());
 		reportInstanceImpl.setCompanyId(getCompanyId());
 		reportInstanceImpl.setUserId(getUserId());
 		reportInstanceImpl.setUserName(getUserName());
+		reportInstanceImpl.setCreateDate(getCreateDate());
 		reportInstanceImpl.setModifiedDate(getModifiedDate());
 		reportInstanceImpl.setReportKey(getReportKey());
+		reportInstanceImpl.setName(getName());
+		reportInstanceImpl.setDescription(getDescription());
 		reportInstanceImpl.setClassName(getClassName());
 		reportInstanceImpl.setClassPK(getClassPK());
 		reportInstanceImpl.setTypeSettings(getTypeSettings());
@@ -526,6 +919,16 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 	public void resetOriginalValues() {
 		ReportInstanceModelImpl reportInstanceModelImpl = this;
 
+		reportInstanceModelImpl._originalUuid = reportInstanceModelImpl._uuid;
+
+		reportInstanceModelImpl._originalGroupId = reportInstanceModelImpl._groupId;
+
+		reportInstanceModelImpl._setOriginalGroupId = false;
+
+		reportInstanceModelImpl._originalCompanyId = reportInstanceModelImpl._companyId;
+
+		reportInstanceModelImpl._setOriginalCompanyId = false;
+
 		reportInstanceModelImpl._originalReportKey = reportInstanceModelImpl._reportKey;
 
 		reportInstanceModelImpl._originalClassName = reportInstanceModelImpl._className;
@@ -540,6 +943,14 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 	@Override
 	public CacheModel<ReportInstance> toCacheModel() {
 		ReportInstanceCacheModel reportInstanceCacheModel = new ReportInstanceCacheModel();
+
+		reportInstanceCacheModel.uuid = getUuid();
+
+		String uuid = reportInstanceCacheModel.uuid;
+
+		if ((uuid != null) && (uuid.length() == 0)) {
+			reportInstanceCacheModel.uuid = null;
+		}
 
 		reportInstanceCacheModel.reportInstanceId = getReportInstanceId();
 
@@ -557,6 +968,15 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 			reportInstanceCacheModel.userName = null;
 		}
 
+		Date createDate = getCreateDate();
+
+		if (createDate != null) {
+			reportInstanceCacheModel.createDate = createDate.getTime();
+		}
+		else {
+			reportInstanceCacheModel.createDate = Long.MIN_VALUE;
+		}
+
 		Date modifiedDate = getModifiedDate();
 
 		if (modifiedDate != null) {
@@ -572,6 +992,22 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 		if ((reportKey != null) && (reportKey.length() == 0)) {
 			reportInstanceCacheModel.reportKey = null;
+		}
+
+		reportInstanceCacheModel.name = getName();
+
+		String name = reportInstanceCacheModel.name;
+
+		if ((name != null) && (name.length() == 0)) {
+			reportInstanceCacheModel.name = null;
+		}
+
+		reportInstanceCacheModel.description = getDescription();
+
+		String description = reportInstanceCacheModel.description;
+
+		if ((description != null) && (description.length() == 0)) {
+			reportInstanceCacheModel.description = null;
 		}
 
 		reportInstanceCacheModel.className = getClassName();
@@ -597,9 +1033,11 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(21);
+		StringBundler sb = new StringBundler(29);
 
-		sb.append("{reportInstanceId=");
+		sb.append("{uuid=");
+		sb.append(getUuid());
+		sb.append(", reportInstanceId=");
 		sb.append(getReportInstanceId());
 		sb.append(", groupId=");
 		sb.append(getGroupId());
@@ -609,10 +1047,16 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 		sb.append(getUserId());
 		sb.append(", userName=");
 		sb.append(getUserName());
+		sb.append(", createDate=");
+		sb.append(getCreateDate());
 		sb.append(", modifiedDate=");
 		sb.append(getModifiedDate());
 		sb.append(", reportKey=");
 		sb.append(getReportKey());
+		sb.append(", name=");
+		sb.append(getName());
+		sb.append(", description=");
+		sb.append(getDescription());
 		sb.append(", className=");
 		sb.append(getClassName());
 		sb.append(", classPK=");
@@ -626,12 +1070,16 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(34);
+		StringBundler sb = new StringBundler(46);
 
 		sb.append("<model><model-name>");
 		sb.append("com.liferay.content.targeting.model.ReportInstance");
 		sb.append("</model-name>");
 
+		sb.append(
+			"<column><column-name>uuid</column-name><column-value><![CDATA[");
+		sb.append(getUuid());
+		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>reportInstanceId</column-name><column-value><![CDATA[");
 		sb.append(getReportInstanceId());
@@ -653,12 +1101,24 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 		sb.append(getUserName());
 		sb.append("]]></column-value></column>");
 		sb.append(
+			"<column><column-name>createDate</column-name><column-value><![CDATA[");
+		sb.append(getCreateDate());
+		sb.append("]]></column-value></column>");
+		sb.append(
 			"<column><column-name>modifiedDate</column-name><column-value><![CDATA[");
 		sb.append(getModifiedDate());
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>reportKey</column-name><column-value><![CDATA[");
 		sb.append(getReportKey());
+		sb.append("]]></column-value></column>");
+		sb.append(
+			"<column><column-name>name</column-name><column-value><![CDATA[");
+		sb.append(getName());
+		sb.append("]]></column-value></column>");
+		sb.append(
+			"<column><column-name>description</column-name><column-value><![CDATA[");
+		sb.append(getDescription());
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>className</column-name><column-value><![CDATA[");
@@ -682,15 +1142,26 @@ public class ReportInstanceModelImpl extends BaseModelImpl<ReportInstance>
 	private static Class<?>[] _escapedModelInterfaces = new Class[] {
 			ReportInstance.class
 		};
+	private String _uuid;
+	private String _originalUuid;
 	private long _reportInstanceId;
 	private long _groupId;
+	private long _originalGroupId;
+	private boolean _setOriginalGroupId;
 	private long _companyId;
+	private long _originalCompanyId;
+	private boolean _setOriginalCompanyId;
 	private long _userId;
 	private String _userUuid;
 	private String _userName;
+	private Date _createDate;
 	private Date _modifiedDate;
 	private String _reportKey;
 	private String _originalReportKey;
+	private String _name;
+	private String _nameCurrentLanguageId;
+	private String _description;
+	private String _descriptionCurrentLanguageId;
 	private String _className;
 	private String _originalClassName;
 	private long _classPK;

@@ -1,3 +1,19 @@
+<#--
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+-->
+
 <#assign aui = PortletJspTagLibs["/META-INF/aui.tld"] />
 <#assign liferay_theme = PortletJspTagLibs["/META-INF/liferay-theme.tld"] />
 <#assign liferay_ui = PortletJspTagLibs["/META-INF/liferay-ui.tld"] />
@@ -14,13 +30,14 @@
 <@portlet["renderURL"] varImpl="portletURL">
 	<@portlet["param"] name="mvcPath" value="${contentTargetingPath.VIEW_REPORT}" />
 	<@portlet["param"] name="redirect" value="${redirect}" />
+	<@portlet["param"] name="reportInstanceId" value="${reportInstanceId}" />
 	<@portlet["param"] name="reportKey" value="${report.getReportKey()}" />
 	<@portlet["param"] name="className" value="${className}" />
 	<@portlet["param"] name="classPK" value="${classPK?string}" />
 </@>
 
 <@liferay_ui["search-container"]
-	emptyResultsMessage=languageUtil.format(locale, "there-is-not-enough-data-to-generate-a-tracking-actions-report-for-the-campaign-x", name)
+	emptyResultsMessage="there-is-not-enough-data-to-generate-this-report"
 	iteratorURL=portletURL
 	total=searchContainerIterator.getTotal()
 >
@@ -33,14 +50,22 @@
 		modelVar="ctActionTotal"
 	>
 
+		<#assign eventType=ctActionTotal.getEventType()>
+
+		<#if ctActionTotal.getEventType() == "sending">
+			<#assign eventType="sent">
+		<#elseif ctActionTotal.getEventType() == "click">
+			<#assign eventType="link-clicks">
+		</#if>
+
 		<@liferay_ui["search-container-column-text"]
-			name="alias"
+			name="name"
 			value=ctActionTotal.getAlias()
 		/>
 
 		<@liferay_ui["search-container-column-text"]
 			name="event"
-			value="${languageUtil.get(locale, ctActionTotal.getEventType())}"
+			value="${languageUtil.get(locale, eventType)}"
 		/>
 
 		<@liferay_ui["search-container-column-text"]

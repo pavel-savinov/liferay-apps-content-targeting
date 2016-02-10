@@ -41,12 +41,27 @@ import java.util.List;
 public class TrackingActionInstanceServiceImpl
 	extends TrackingActionInstanceServiceBaseImpl {
 
-	/**
-	 * NOTE FOR DEVELOPERS:
-	 *
-	 * Never reference this interface directly. Always use {@link com.liferay.content.targeting.service.TrackingActionInstanceServiceUtil} to access the tracking action instance remote service.
-	 */
+	@Override
+	public TrackingActionInstance addTrackingActionInstance(
+			long userId, long reportInstanceId, String trackingActionKey,
+			long campaignId, String alias, String referrerClassName,
+			long referrerClassPK, String elementId, String eventType,
+			String typeSettings, ServiceContext serviceContext)
+		throws PortalException, SystemException {
 
+		CampaignPermission.check(
+			getPermissionChecker(), campaignId, ActionKeys.UPDATE);
+
+		return trackingActionInstanceLocalService.addTrackingActionInstance(
+			userId, reportInstanceId, trackingActionKey, campaignId, alias,
+			referrerClassName, referrerClassPK, elementId, eventType,
+			typeSettings, serviceContext);
+	}
+
+	/**
+	* @deprecated As of 2.0.0
+	*/
+	@Deprecated
 	@Override
 	public TrackingActionInstance addTrackingActionInstance(
 			long userId, String trackingActionKey, long campaignId,
@@ -56,7 +71,7 @@ public class TrackingActionInstanceServiceImpl
 		throws PortalException, SystemException {
 
 		CampaignPermission.check(
-				getPermissionChecker(), campaignId, ActionKeys.UPDATE);
+			getPermissionChecker(), campaignId, ActionKeys.UPDATE);
 
 		return trackingActionInstanceLocalService.addTrackingActionInstance(
 			userId, trackingActionKey, campaignId, alias, referrerClassName,
@@ -82,12 +97,31 @@ public class TrackingActionInstanceServiceImpl
 	}
 
 	@Override
+	public TrackingActionInstance fetchTrackingActionInstance(
+			long campaignId, String alias)
+		throws Exception {
+
+		return trackingActionInstanceLocalService.fetchTrackingActionInstance(
+			campaignId, alias);
+	}
+
+	@Override
 	public List<TrackingActionInstance> getTrackingActionInstances(
 			long campaignId)
 		throws SystemException {
 
 		return trackingActionInstanceLocalService.getTrackingActionInstances(
 			campaignId);
+	}
+
+	@Override
+	public List<TrackingActionInstance>
+		getTrackingActionInstancesByReportInstanceId(
+			long reportInstanceId)
+		throws SystemException {
+
+		return trackingActionInstanceLocalService.
+			getTrackingActionInstancesByReportInstanceId(reportInstanceId);
 	}
 
 	@Override
@@ -101,7 +135,7 @@ public class TrackingActionInstanceServiceImpl
 
 	@Override
 	public TrackingActionInstance updateTrackingActionInstance(
-			long trackingActionInstanceId, String alias,
+			long trackingActionInstanceId, long reportInstanceId, String alias,
 			String referrerClassName, long referrerClassPK, String elementId,
 			String eventType, String typeSettings,
 			ServiceContext serviceContext)
@@ -116,8 +150,9 @@ public class TrackingActionInstanceServiceImpl
 			ActionKeys.UPDATE);
 
 		return trackingActionInstanceLocalService.updateTrackingActionInstance(
-			trackingActionInstanceId, alias, referrerClassName, referrerClassPK,
-			elementId, eventType, typeSettings, serviceContext);
+			trackingActionInstanceId, reportInstanceId, alias,
+			referrerClassName, referrerClassPK, elementId, eventType,
+			typeSettings, serviceContext);
 	}
 
 }

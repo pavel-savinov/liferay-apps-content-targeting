@@ -18,11 +18,11 @@ import com.liferay.content.targeting.InvalidDateRangeException;
 import com.liferay.content.targeting.InvalidNameException;
 import com.liferay.content.targeting.model.Campaign;
 import com.liferay.content.targeting.model.ReportInstance;
+import com.liferay.content.targeting.model.Tactic;
 import com.liferay.content.targeting.model.TrackingActionInstance;
 import com.liferay.content.targeting.service.base.CampaignLocalServiceBaseImpl;
 import com.liferay.content.targeting.util.BaseModelSearchResult;
 import com.liferay.content.targeting.util.CampaignUtil;
-import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.Hits;
@@ -40,9 +40,7 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
-import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -74,11 +72,29 @@ public class CampaignLocalServiceImpl extends CampaignLocalServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		User user = UserLocalServiceUtil.getUser(userId);
+		return addCampaign(
+			userId, nameMap, descriptionMap, startDate, endDate, null, priority,
+			active, userSegmentIds, serviceContext);
+	}
+
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public Campaign addCampaign(
+			long userId, Map<Locale, String> nameMap,
+			Map<Locale, String> descriptionMap, Date startDate, Date endDate,
+			String timeZoneId, int priority, boolean active,
+			long[] userSegmentIds, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		User user = userLocalService.getUser(userId);
 
 		Date now = new Date();
 
-		long campaignId = CounterLocalServiceUtil.increment();
+		if (timeZoneId == null) {
+			timeZoneId = user.getTimeZone().getID();
+		}
+
+		long campaignId = counterLocalService.increment();
 
 		Campaign campaign = campaignPersistence.create(campaignId);
 
@@ -93,6 +109,7 @@ public class CampaignLocalServiceImpl extends CampaignLocalServiceBaseImpl {
 		campaign.setDescriptionMap(descriptionMap);
 		campaign.setStartDate(startDate);
 		campaign.setEndDate(endDate);
+		campaign.setTimeZoneId(timeZoneId);
 		campaign.setPriority(priority);
 		campaign.setActive(active);
 
@@ -188,6 +205,15 @@ public class CampaignLocalServiceImpl extends CampaignLocalServiceBaseImpl {
 
 			trackingActionInstanceLocalService.deleteTrackingActionInstance(
 				trackingActionInstance.getTrackingActionInstanceId());
+		}
+
+		// Tactics
+
+		List<Tactic> tactics = tacticLocalService.getTactics(
+			campaign.getCampaignId());
+
+		for (Tactic tactic : tactics) {
+			tacticLocalService.deleteTactic(tactic.getTacticId());
 		}
 
 		return campaign;
@@ -310,7 +336,25 @@ public class CampaignLocalServiceImpl extends CampaignLocalServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
+		return updateCampaign(
+			campaignId, nameMap, descriptionMap, startDate, endDate, null,
+			priority, active, userSegmentIds, serviceContext);
+	}
+
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public Campaign updateCampaign(
+			long campaignId, Map<Locale, String> nameMap,
+			Map<Locale, String> descriptionMap, Date startDate, Date endDate,
+			String timeZoneId, int priority, boolean active,
+			long[] userSegmentIds, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
 		Date now = new Date();
+
+		if (timeZoneId == null) {
+			timeZoneId = serviceContext.getTimeZone().getID();
+		}
 
 		Campaign campaign = campaignPersistence.findByPrimaryKey(campaignId);
 
@@ -319,6 +363,7 @@ public class CampaignLocalServiceImpl extends CampaignLocalServiceBaseImpl {
 		campaign.setDescriptionMap(descriptionMap);
 		campaign.setStartDate(startDate);
 		campaign.setEndDate(endDate);
+		campaign.setTimeZoneId(timeZoneId);
 		campaign.setPriority(priority);
 		campaign.setActive(active);
 
@@ -361,7 +406,7 @@ public class CampaignLocalServiceImpl extends CampaignLocalServiceBaseImpl {
 
 		SearchContext searchContext = new SearchContext();
 
-		Group group = GroupLocalServiceUtil.getGroup(groupId);
+		Group group = groupLocalService.getGroup(groupId);
 
 		searchContext.setCompanyId(group.getCompanyId());
 		searchContext.setEnd(end);

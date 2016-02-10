@@ -31,7 +31,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +44,7 @@ import org.osgi.framework.FrameworkUtil;
  */
 public class UserSegmentPreAction extends Action {
 
-	public long[] getMatchesUserSegmentIds(
+	public long[] getMatchingUserSegmentIds(
 			HttpServletRequest request, long[] groupIds,
 			AnonymousUser anonymousUser)
 		throws Exception {
@@ -54,37 +53,17 @@ public class UserSegmentPreAction extends Action {
 			return null;
 		}
 
-		List<Long> userSegmentIds = new ArrayList<Long>();
-
 		List<UserSegment> userSegments =
 			UserSegmentLocalServiceUtil.getUserSegments(groupIds);
 
-		for (UserSegment userSegment : userSegments) {
-			if (matches(request, anonymousUser, userSegment)) {
-				userSegmentIds.add(userSegment.getUserSegmentId());
-			}
-		}
-
-		return ArrayUtil.toLongArray(userSegmentIds);
-	}
-
-	public boolean matches(
-			HttpServletRequest request, AnonymousUser anonymousUser,
-			UserSegment userSegment)
-		throws Exception {
-
-		if (_rulesEngine == null) {
-			_intiRulesEngine();
-		}
-
-		return _rulesEngine.matches(
-			request, anonymousUser, userSegment.getRuleInstances());
+		return _rulesEngine.getMatchingUserSegmentIds(
+			request, anonymousUser, userSegments);
 	}
 
 	@Override
 	public void run(HttpServletRequest request, HttpServletResponse response) {
-		_intiAnonymousUserManager();
-		_intiRulesEngine();
+		_initAnonymousUserManager();
+		_initRulesEngine();
 
 		long[] userSegmentsIds = getUserSegmentIds(request, response);
 
@@ -122,7 +101,7 @@ public class UserSegmentPreAction extends Action {
 		}
 
 		if (_anonymousUsersManager == null) {
-			_intiAnonymousUserManager();
+			_initAnonymousUserManager();
 		}
 
 		try {
@@ -131,7 +110,7 @@ public class UserSegmentPreAction extends Action {
 
 			long[] groupIds = getGroupIds(request);
 
-			long[] originalUserSegmentIds = getMatchesUserSegmentIds(
+			long[] originalUserSegmentIds = getMatchingUserSegmentIds(
 				request, groupIds, anonymousUser);
 
 			if (userSegmentsIds == null) {
@@ -150,25 +129,25 @@ public class UserSegmentPreAction extends Action {
 		return userSegmentsIds;
 	}
 
-	private void _initUserSegmentSimulator() {
-		Bundle bundle = FrameworkUtil.getBundle(getClass());
-
-		_userSegmentSimulator = ServiceTrackerUtil.getService(
-			UserSegmentSimulator.class, bundle.getBundleContext());
-	}
-
-	private void _intiAnonymousUserManager() {
+	private void _initAnonymousUserManager() {
 		Bundle bundle = FrameworkUtil.getBundle(getClass());
 
 		_anonymousUsersManager = ServiceTrackerUtil.getService(
 			AnonymousUsersManager.class, bundle.getBundleContext());
 	}
 
-	private void _intiRulesEngine() {
+	private void _initRulesEngine() {
 		Bundle bundle = FrameworkUtil.getBundle(getClass());
 
 		_rulesEngine = ServiceTrackerUtil.getService(
 			RulesEngine.class, bundle.getBundleContext());
+	}
+
+	private void _initUserSegmentSimulator() {
+		Bundle bundle = FrameworkUtil.getBundle(getClass());
+
+		_userSegmentSimulator = ServiceTrackerUtil.getService(
+			UserSegmentSimulator.class, bundle.getBundleContext());
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(UserSegmentPreAction.class);

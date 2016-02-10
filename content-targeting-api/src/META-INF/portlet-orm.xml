@@ -7,6 +7,25 @@
 			<access>PROPERTY</access>
 		</persistence-unit-defaults>
 	</persistence-unit-metadata>
+	<mapped-superclass class="com.liferay.content.targeting.model.impl.AnonymousUserUserSegmentModelImpl">
+		<attributes>
+			<id name="anonymousUserUserSegmentId" />
+			<basic name="companyId" />
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="anonymousUserId" />
+			<basic name="userSegmentId" />
+			<basic name="manual" />
+			<basic name="active">
+				<column name="ACTIVE_" />
+			</basic>
+			<transient name="anonymousUserUuid" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+		</attributes>
+	</mapped-superclass>
 	<mapped-superclass class="com.liferay.content.targeting.model.impl.CampaignModelImpl">
 		<attributes>
 			<id name="campaignId" />
@@ -31,6 +50,7 @@
 			<basic name="endDate">
 				<temporal>TIMESTAMP</temporal>
 			</basic>
+			<basic name="timeZoneId" />
 			<basic name="priority" />
 			<basic name="active">
 				<column name="ACTIVE_" />
@@ -45,21 +65,62 @@
 			<transient name="userUuid" />
 		</attributes>
 	</mapped-superclass>
-	<mapped-superclass class="com.liferay.content.targeting.model.impl.ReportInstanceModelImpl">
+	<mapped-superclass class="com.liferay.content.targeting.model.impl.ChannelInstanceModelImpl">
 		<attributes>
-			<id name="reportInstanceId" />
+			<id name="channelInstanceId" />
+			<basic name="uuid">
+				<column name="UUID_" />
+			</basic>
 			<basic name="groupId" />
 			<basic name="companyId" />
 			<basic name="userId" />
 			<basic name="userName" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="channelKey" />
+			<basic name="campaignId" />
+			<basic name="tacticId" />
+			<basic name="alias">
+				<column name="ALIAS_" />
+			</basic>
+			<basic name="typeSettings" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
+	<mapped-superclass class="com.liferay.content.targeting.model.impl.ReportInstanceModelImpl">
+		<attributes>
+			<id name="reportInstanceId" />
+			<basic name="uuid">
+				<column name="UUID_" />
+			</basic>
+			<basic name="groupId" />
+			<basic name="companyId" />
+			<basic name="userId" />
+			<basic name="userName" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
 			<basic name="modifiedDate">
 				<temporal>TIMESTAMP</temporal>
 			</basic>
 			<basic name="reportKey" />
+			<basic name="name" />
+			<basic name="description" />
 			<basic name="className" />
 			<basic name="classPK" />
 			<basic name="typeSettings" />
+			<transient name="descriptionCurrentLanguageId" />
+			<transient name="descriptionMap" />
 			<transient name="modelAttributes" />
+			<transient name="nameCurrentLanguageId" />
+			<transient name="nameMap" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
 			<transient name="userUuid" />
@@ -90,6 +151,35 @@
 			<transient name="userUuid" />
 		</attributes>
 	</mapped-superclass>
+	<mapped-superclass class="com.liferay.content.targeting.model.impl.TacticModelImpl">
+		<attributes>
+			<id name="tacticId" />
+			<basic name="uuid">
+				<column name="UUID_" />
+			</basic>
+			<basic name="groupId" />
+			<basic name="companyId" />
+			<basic name="userId" />
+			<basic name="userName" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="campaignId" />
+			<basic name="name" />
+			<basic name="description" />
+			<transient name="descriptionCurrentLanguageId" />
+			<transient name="descriptionMap" />
+			<transient name="modelAttributes" />
+			<transient name="nameCurrentLanguageId" />
+			<transient name="nameMap" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
 	<mapped-superclass class="com.liferay.content.targeting.model.impl.TrackingActionInstanceModelImpl">
 		<attributes>
 			<id name="trackingActionInstanceId" />
@@ -108,6 +198,7 @@
 			</basic>
 			<basic name="trackingActionKey" />
 			<basic name="campaignId" />
+			<basic name="reportInstanceId" />
 			<basic name="alias">
 				<column name="ALIAS_" />
 			</basic>
@@ -151,9 +242,20 @@
 			<transient name="userUuid" />
 		</attributes>
 	</mapped-superclass>
+	<entity class="com.liferay.content.targeting.model.impl.AnonymousUserUserSegmentImpl" name="AnonymousUserUserSegment">
+		<table name="CT_AnonymousUserUserSegment" />
+		<attributes />
+	</entity>
 	<entity class="com.liferay.content.targeting.model.impl.CampaignImpl" name="Campaign">
 		<table name="CT_Campaign" />
 		<attributes />
+	</entity>
+	<entity class="com.liferay.content.targeting.model.impl.ChannelInstanceImpl" name="ChannelInstance">
+		<table name="CT_ChannelInstance" />
+		<attributes>
+			<transient name="channelGuid" />
+			<transient name="values" />
+		</attributes>
 	</entity>
 	<entity class="com.liferay.content.targeting.model.impl.ReportInstanceImpl" name="ReportInstance">
 		<table name="CT_ReportInstance" />
@@ -165,6 +267,10 @@
 			<transient name="ruleGuid" />
 			<transient name="values" />
 		</attributes>
+	</entity>
+	<entity class="com.liferay.content.targeting.model.impl.TacticImpl" name="Tactic">
+		<table name="CT_Tactic" />
+		<attributes />
 	</entity>
 	<entity class="com.liferay.content.targeting.model.impl.TrackingActionInstanceImpl" name="TrackingActionInstance">
 		<table name="CT_TrackingActionInstance" />

@@ -1,6 +1,6 @@
 <#--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,18 +17,11 @@
 <#include "../init.ftl" />
 <#include "../macros.ftl" />
 
-<@breadcrumb />
-
 <#if validator.isNull(redirect)>
 	<@portlet["renderURL"] var="redirect">
 		<@portlet["param"] name="mvcPath" value="${contentTargetingPath.VIEW}" />
 	</@>
 </#if>
-
-<@liferay_ui["header"]
-	backURL="${redirect}"
-	title="${title}"
-/>
 
 <#if scopeGroup.isStagingGroup()>
 	<div class="alert alert-warning">
@@ -40,86 +33,47 @@
 	</div>
 </#if>
 
-<#if (classPK > 0)>
-	<@portlet["renderURL"] varImpl="viewReportsURL">
+<@portlet["renderURL"] varImpl="viewReportsURL">
+	<@portlet["param"] name="redirect" value="${redirect}" />
+	<@portlet["param"] name="backURL" value="${backURL}" />
+
+	<#if className == campaignClass.getName()>
+		<@portlet["param"] name="mvcPath" value="${contentTargetingPath.EDIT_CAMPAIGN}" />
+		<@portlet["param"] name="campaignId" value="${classPK?string}" />
+		<@portlet["param"] name="tabs2" value="reports" />
+	<#elseif className == userSegmentClass.getName()>
+		<@portlet["param"] name="mvcPath" value="${contentTargetingPath.EDIT_USER_SEGMENT}" />
+		<@portlet["param"] name="userSegmentId" value="${classPK?string}" />
+		<@portlet["param"] name="tabs2" value="reports" />
+	<#else>
 		<@portlet["param"] name="mvcPath" value="${contentTargetingPath.VIEW_REPORTS}" />
-		<@portlet["param"] name="redirect" value="${redirect}" />
-		<@portlet["param"] name="className" value="${className}" />
-		<@portlet["param"] name="classPK" value="${classPK?string}" />
-	</@>
+	</#if>
 
-	<@liferay_ui["search-container"]
-		emptyResultsMessage="no-reports-were-found"
-		iteratorURL=viewReportsURL
-		rowChecker=rowChecker
-		total=reportSearchContainerIterator.getTotal()
-	>
-		<@liferay_ui["search-container-results"]
-			results=reportSearchContainerIterator.getResults(searchContainer.getStart(), searchContainer.getEnd())
-		/>
+	<@portlet["param"] name="className" value="${className}" />
+	<@portlet["param"] name="classPK" value="${classPK?string}" />
+</@>
 
-		<@liferay_ui["search-container-row"]
-			className="com.liferay.content.targeting.model.api.Report"
-			keyProperty="reportKey"
-			modelVar="report"
-		>
+<@aui["form"] action="${viewReportsURL}" method="post" name="fmReports">
+	<@aui["input"] name="redirect" type="hidden" value="${viewReportsURL}" />
+	<@aui["input"] name="reportInstanceIds" type="hidden" />
 
-			<@portlet["renderURL"] varImpl="viewReportURL">
-				<@portlet["param"] name="mvcPath" value="${contentTargetingPath.VIEW_REPORT}" />
-				<@portlet["param"] name="backURL" value="${currentURL}" />
-				<@portlet["param"] name="className" value="${className}" />
-				<@portlet["param"] name="classPK" value="${classPK?string}" />
-				<@portlet["param"] name="reportKey" value="${report.getReportKey()}" />
-			</@>
+	<div id="<@portlet["namespace"] />reportsPanel">
+		<#include "report_toolbar.ftl" />
 
-			<@liferay_ui["search-container-column-text"]
-				href=viewReportURL
-				name="name"
-				value=report.getName(locale)
-			/>
+		<#include "view_reports_resources.ftl" />
+	</div>
+</@>
 
-			<@liferay_ui["search-container-column-text"]
-				href=viewReportURL
-				name="description"
-				value=report.getDescription(locale)
-			/>
+<@aui["script"] use="liferay-ajax-search">
+	var reportsPanel = A.one('#<@portlet["namespace"] />reportsPanel');
+	var inputNode = A.one('#<@portlet["namespace"] />reportkeywords');
 
-			<@liferay_ui["search-container-column-date"]
-				href=viewReportURL
-				name="last-update"
-				value=reportInstanceService.getReportInstanceModifiedDate(report.getReportKey(), className, classPK)
-			/>
-
-			<@liferay_ui["search-container-column-text"]
-				align="right"
-				name=""
-			>
-				<@liferay_ui["icon-menu"]>
-					<@liferay_ui["icon"]
-						image="view"
-						label=true
-						message="view-report"
-						method="get"
-						url="${viewReportURL}"
-					/>
-
-					<@portlet["actionURL"] name="updateReport" var="updateReportURL">
-						<@portlet["param"] name="redirect" value="${currentURL}" />
-						<@portlet["param"] name="reportKey" value="${report.getReportKey()}" />
-						<@portlet["param"] name="classPK" value="${classPK?string}" />
-					</@>
-
-					<@liferay_ui["icon"]
-						image="undo"
-						label=true
-						message="update-report"
-						method="post"
-						url="${updateReportURL}"
-					/>
-				</@>
-			</@>
-		</@>
-
-		<@liferay_ui["search-iterator"] />
-	</@>
-</#if>
+	var search = new Liferay.AjaxContentSearch(
+		{
+			contentPanel: reportsPanel,
+			inputNode: inputNode,
+			resourceURL: '<@portlet["resourceURL"]><@portlet["param"] name="mvcPath" value="${contentTargetingPath.VIEW_REPORTS_RESOURCES}" />${classPK?string}" /></@>',
+			namespace: '<@portlet["namespace"] />'
+		}
+	);
+</@>

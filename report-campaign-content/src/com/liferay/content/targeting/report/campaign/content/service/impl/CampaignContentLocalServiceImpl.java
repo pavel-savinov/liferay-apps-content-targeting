@@ -23,7 +23,6 @@ import com.liferay.content.targeting.report.campaign.content.model.CampaignConte
 import com.liferay.content.targeting.report.campaign.content.service.base.CampaignContentLocalServiceBaseImpl;
 import com.liferay.content.targeting.service.CampaignLocalService;
 import com.liferay.content.targeting.service.ReportInstanceLocalService;
-import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.osgi.util.service.ServiceTrackerUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -31,8 +30,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Date;
 import java.util.List;
@@ -71,7 +69,7 @@ public class CampaignContentLocalServiceImpl
 			campaignId, className, classPK, eventType);
 
 		if (campaignContent == null) {
-			long campaignContentId = CounterLocalServiceUtil.increment();
+			long campaignContentId = counterLocalService.increment();
 
 			campaignContent = campaignContentPersistence.create(
 				campaignContentId);
@@ -99,18 +97,8 @@ public class CampaignContentLocalServiceImpl
 			List<Campaign> campaigns = _campaignLocalService.getCampaigns(
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
-			ServiceContext serviceContext = new ServiceContext();
-
 			for (Campaign campaign : campaigns) {
 				checkCampaignContentEvents(campaign.getCampaignId());
-
-				serviceContext.setScopeGroupId(campaign.getGroupId());
-
-				_reportInstanceLocalService.addReportInstance(
-					campaign.getUserId(),
-					CampaignContentReport.class.getSimpleName(),
-					Campaign.class.getName(), campaign.getCampaignId(),
-					StringPool.BLANK, serviceContext);
 			}
 		}
 		catch (NullPointerException npe) {
@@ -192,12 +180,14 @@ public class CampaignContentLocalServiceImpl
 		// Process analytics and store data
 
 		for (Object[] analyticsEvent : analyticsEvents) {
-			String referrerClassName = (String)analyticsEvent[0];
-			long referrerClassPK = (Long)analyticsEvent[1];
+			String className = (String)analyticsEvent[0];
+			long classPK = (Long)analyticsEvent[1];
 			int count = (Integer)analyticsEvent[2];
 
-			addCampaignContent(
-				campaignId, referrerClassName, referrerClassPK, "view", count);
+			if (Validator.isNotNull(className) && (classPK > 0)) {
+				addCampaignContent(
+					campaignId, className, classPK, "view", count);
+			}
 		}
 	}
 

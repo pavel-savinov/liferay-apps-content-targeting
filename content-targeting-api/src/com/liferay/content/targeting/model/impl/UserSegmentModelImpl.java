@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -88,8 +89,8 @@ public class UserSegmentModelImpl extends BaseModelImpl<UserSegment>
 		};
 	public static final String TABLE_SQL_CREATE = "create table CT_UserSegment (uuid_ VARCHAR(75) null,userSegmentId LONG not null primary key,groupId LONG,assetCategoryId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,name STRING null,description STRING null)";
 	public static final String TABLE_SQL_DROP = "drop table CT_UserSegment";
-	public static final String ORDER_BY_JPQL = " ORDER BY userSegment.name DESC";
-	public static final String ORDER_BY_SQL = " ORDER BY CT_UserSegment.name DESC";
+	public static final String ORDER_BY_JPQL = " ORDER BY userSegment.modifiedDate DESC";
+	public static final String ORDER_BY_SQL = " ORDER BY CT_UserSegment.modifiedDate DESC";
 	public static final String DATA_SOURCE = "liferayDataSource";
 	public static final String SESSION_FACTORY = "liferaySessionFactory";
 	public static final String TX_MANAGER = "liferayTransactionManager";
@@ -106,7 +107,7 @@ public class UserSegmentModelImpl extends BaseModelImpl<UserSegment>
 	public static long COMPANYID_COLUMN_BITMASK = 2L;
 	public static long GROUPID_COLUMN_BITMASK = 4L;
 	public static long UUID_COLUMN_BITMASK = 8L;
-	public static long NAME_COLUMN_BITMASK = 16L;
+	public static long MODIFIEDDATE_COLUMN_BITMASK = 16L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -166,6 +167,16 @@ public class UserSegmentModelImpl extends BaseModelImpl<UserSegment>
 		"create table CT_Campaigns_UserSegments (campaignId LONG not null,userSegmentId LONG not null,primary key (campaignId, userSegmentId))";
 	public static final boolean FINDER_CACHE_ENABLED_CT_CAMPAIGNS_USERSEGMENTS = GetterUtil.getBoolean(com.liferay.util.service.ServiceProps.get(
 				"value.object.finder.cache.enabled.CT_Campaigns_UserSegments"),
+			true);
+	public static final String MAPPING_TABLE_CT_TACTICS_USERSEGMENTS_NAME = "CT_Tactics_UserSegments";
+	public static final Object[][] MAPPING_TABLE_CT_TACTICS_USERSEGMENTS_COLUMNS =
+		{
+			{ "tacticId", Types.BIGINT },
+			{ "userSegmentId", Types.BIGINT }
+		};
+	public static final String MAPPING_TABLE_CT_TACTICS_USERSEGMENTS_SQL_CREATE = "create table CT_Tactics_UserSegments (tacticId LONG not null,userSegmentId LONG not null,primary key (tacticId, userSegmentId))";
+	public static final boolean FINDER_CACHE_ENABLED_CT_TACTICS_USERSEGMENTS = GetterUtil.getBoolean(com.liferay.util.service.ServiceProps.get(
+				"value.object.finder.cache.enabled.CT_Tactics_UserSegments"),
 			true);
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.util.service.ServiceProps.get(
 				"lock.expiration.time.com.liferay.content.targeting.model.UserSegment"));
@@ -451,6 +462,8 @@ public class UserSegmentModelImpl extends BaseModelImpl<UserSegment>
 
 	@Override
 	public void setModifiedDate(Date modifiedDate) {
+		_columnBitmask = -1L;
+
 		_modifiedDate = modifiedDate;
 	}
 
@@ -510,8 +523,6 @@ public class UserSegmentModelImpl extends BaseModelImpl<UserSegment>
 
 	@Override
 	public void setName(String name) {
-		_columnBitmask = -1L;
-
 		_name = name;
 	}
 
@@ -791,7 +802,8 @@ public class UserSegmentModelImpl extends BaseModelImpl<UserSegment>
 	public int compareTo(UserSegment userSegment) {
 		int value = 0;
 
-		value = getName().compareTo(userSegment.getName());
+		value = DateUtil.compareTo(getModifiedDate(),
+				userSegment.getModifiedDate());
 
 		value = value * -1;
 

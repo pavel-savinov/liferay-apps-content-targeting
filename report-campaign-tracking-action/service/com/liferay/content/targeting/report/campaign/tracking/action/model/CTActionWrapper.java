@@ -50,7 +50,9 @@ public class CTActionWrapper implements CTAction, ModelWrapper<CTAction> {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("CTActionId", getCTActionId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("campaignId", getCampaignId());
+		attributes.put("reportInstanceId", getReportInstanceId());
 		attributes.put("userSegmentId", getUserSegmentId());
 		attributes.put("alias", getAlias());
 		attributes.put("referrerClassName", getReferrerClassName());
@@ -71,10 +73,22 @@ public class CTActionWrapper implements CTAction, ModelWrapper<CTAction> {
 			setCTActionId(CTActionId);
 		}
 
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
+		}
+
 		Long campaignId = (Long)attributes.get("campaignId");
 
 		if (campaignId != null) {
 			setCampaignId(campaignId);
+		}
+
+		Long reportInstanceId = (Long)attributes.get("reportInstanceId");
+
+		if (reportInstanceId != null) {
+			setReportInstanceId(reportInstanceId);
 		}
 
 		Long userSegmentId = (Long)attributes.get("userSegmentId");
@@ -167,6 +181,26 @@ public class CTActionWrapper implements CTAction, ModelWrapper<CTAction> {
 	}
 
 	/**
+	* Returns the company ID of this c t action.
+	*
+	* @return the company ID of this c t action
+	*/
+	@Override
+	public long getCompanyId() {
+		return _ctAction.getCompanyId();
+	}
+
+	/**
+	* Sets the company ID of this c t action.
+	*
+	* @param companyId the company ID of this c t action
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_ctAction.setCompanyId(companyId);
+	}
+
+	/**
 	* Returns the campaign ID of this c t action.
 	*
 	* @return the campaign ID of this c t action
@@ -184,6 +218,26 @@ public class CTActionWrapper implements CTAction, ModelWrapper<CTAction> {
 	@Override
 	public void setCampaignId(long campaignId) {
 		_ctAction.setCampaignId(campaignId);
+	}
+
+	/**
+	* Returns the report instance ID of this c t action.
+	*
+	* @return the report instance ID of this c t action
+	*/
+	@Override
+	public long getReportInstanceId() {
+		return _ctAction.getReportInstanceId();
+	}
+
+	/**
+	* Sets the report instance ID of this c t action.
+	*
+	* @param reportInstanceId the report instance ID of this c t action
+	*/
+	@Override
+	public void setReportInstanceId(long reportInstanceId) {
+		_ctAction.setReportInstanceId(reportInstanceId);
 	}
 
 	/**

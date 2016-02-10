@@ -191,8 +191,9 @@ public class TrackingActionInstanceStagedModelDataHandler
 					"Cannot import custom data for tracking action " +
 						trackingAction.getName(LocaleUtil.getDefault()) +
 							" in campaign" +
-								campaign.getName(LocaleUtil.getDefault()));
-				}
+								campaign.getName(LocaleUtil.getDefault()),
+					e);
+			}
 		}
 
 		long userId = portletDataContext.getUserId(
@@ -215,7 +216,8 @@ public class TrackingActionInstanceStagedModelDataHandler
 			importedTrackingActionInstance =
 				TrackingActionInstanceLocalServiceUtil.
 					addTrackingActionInstance(
-						userId, trackingActionInstance.getTrackingActionKey(),
+						userId, trackingActionInstance.getReportInstanceId(),
+						trackingActionInstance.getTrackingActionKey(),
 						trackingActionInstance.getCampaignId(),
 						trackingActionInstance.getAlias(),
 						trackingActionInstance.getReferrerClassName(),
@@ -231,6 +233,7 @@ public class TrackingActionInstanceStagedModelDataHandler
 					updateTrackingActionInstance(
 						existingTrackingActionInstance.
 							getTrackingActionInstanceId(),
+						trackingActionInstance.getReportInstanceId(),
 						trackingActionInstance.getAlias(),
 						trackingActionInstance.getReferrerClassName(),
 						trackingActionInstance.getReferrerClassPK(),

@@ -15,7 +15,6 @@
 package com.liferay.content.targeting.report.user.segment.content.service.impl;
 
 import com.liferay.content.targeting.analytics.service.AnalyticsEventLocalService;
-import com.liferay.content.targeting.analytics.service.AnalyticsReferrerLocalService;
 import com.liferay.content.targeting.model.ReportInstance;
 import com.liferay.content.targeting.model.UserSegment;
 import com.liferay.content.targeting.report.user.segment.content.UserSegmentContentReport;
@@ -23,7 +22,6 @@ import com.liferay.content.targeting.report.user.segment.content.model.UserSegme
 import com.liferay.content.targeting.report.user.segment.content.service.base.UserSegmentContentLocalServiceBaseImpl;
 import com.liferay.content.targeting.service.ReportInstanceLocalService;
 import com.liferay.content.targeting.service.UserSegmentLocalService;
-import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.osgi.util.service.ServiceTrackerUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -31,8 +29,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Date;
 import java.util.List;
@@ -71,11 +68,15 @@ public class UserSegmentContentLocalServiceImpl
 			userSegmentId, className, classPK, eventType);
 
 		if (userSegmentContent == null) {
-			long userSegmentContentId = CounterLocalServiceUtil.increment();
+			UserSegment userSegment = _userSegmentLocalService.getUserSegment
+				(userSegmentId);
+
+			long userSegmentContentId = counterLocalService.increment();
 
 			userSegmentContent = userSegmentContentPersistence.create(
 				userSegmentContentId);
 
+			userSegmentContent.setCompanyId(userSegment.getCompanyId());
 			userSegmentContent.setUserSegmentId(userSegmentId);
 			userSegmentContent.setClassName(className);
 			userSegmentContent.setClassPK(classPK);
@@ -100,18 +101,8 @@ public class UserSegmentContentLocalServiceImpl
 				_userSegmentLocalService.getUserSegments(
 					QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
-			ServiceContext serviceContext = new ServiceContext();
-
 			for (UserSegment userSegment : userSegments) {
 				checkUserSegmentContentEvents(userSegment.getUserSegmentId());
-
-				serviceContext.setScopeGroupId(userSegment.getGroupId());
-
-				_reportInstanceLocalService.addReportInstance(
-					userSegment.getUserId(),
-					UserSegmentContentReport.class.getSimpleName(),
-					UserSegment.class.getName(), userSegment.getUserSegmentId(),
-					StringPool.BLANK, new ServiceContext());
 			}
 		}
 		catch (NullPointerException npe) {
@@ -198,13 +189,14 @@ public class UserSegmentContentLocalServiceImpl
 		// Process analytics and store data
 
 		for (Object[] analyticsEvent : analyticsEvents) {
-			String referrerClassName = (String)analyticsEvent[0];
-			long referrerClassPK = (Long)analyticsEvent[1];
+			String className = (String)analyticsEvent[0];
+			long classPK = (Long)analyticsEvent[1];
 			int count = (Integer)analyticsEvent[2];
 
-			addUserSegmentContent(
-				userSegmentId, referrerClassName, referrerClassPK, "view",
-				count);
+			if (Validator.isNotNull(className) && (classPK > 0)) {
+				addUserSegmentContent(
+					userSegmentId, className, classPK, "view", count);
+			}
 		}
 	}
 
@@ -213,8 +205,6 @@ public class UserSegmentContentLocalServiceImpl
 
 		_analyticsEventLocalService = ServiceTrackerUtil.getService(
 			AnalyticsEventLocalService.class, bundle.getBundleContext());
-		_analyticsReferrerLocalService = ServiceTrackerUtil.getService(
-			AnalyticsReferrerLocalService.class, bundle.getBundleContext());
 		_reportInstanceLocalService = ServiceTrackerUtil.getService(
 			ReportInstanceLocalService.class, bundle.getBundleContext());
 		_userSegmentLocalService = ServiceTrackerUtil.getService(
@@ -225,7 +215,6 @@ public class UserSegmentContentLocalServiceImpl
 		UserSegmentContentLocalServiceImpl.class);
 
 	private AnalyticsEventLocalService _analyticsEventLocalService;
-	private AnalyticsReferrerLocalService _analyticsReferrerLocalService;
 	private ReportInstanceLocalService _reportInstanceLocalService;
 	private UserSegmentLocalService _userSegmentLocalService;
 

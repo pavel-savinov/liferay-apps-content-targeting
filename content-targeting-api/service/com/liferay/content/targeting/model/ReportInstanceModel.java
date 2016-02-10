@@ -14,10 +14,12 @@
 
 package com.liferay.content.targeting.model;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
+import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
@@ -25,6 +27,8 @@ import com.liferay.portlet.expando.model.ExpandoBridge;
 import java.io.Serializable;
 
 import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * The base model interface for the ReportInstance service. Represents a row in the &quot;CT_ReportInstance&quot; database table, with each column mapped to a property of this class.
@@ -39,7 +43,8 @@ import java.util.Date;
  * @see com.liferay.content.targeting.model.impl.ReportInstanceModelImpl
  * @generated
  */
-public interface ReportInstanceModel extends BaseModel<ReportInstance> {
+public interface ReportInstanceModel extends BaseModel<ReportInstance>,
+	StagedGroupedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -61,6 +66,23 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	public void setPrimaryKey(long primaryKey);
 
 	/**
+	 * Returns the uuid of this report instance.
+	 *
+	 * @return the uuid of this report instance
+	 */
+	@AutoEscape
+	@Override
+	public String getUuid();
+
+	/**
+	 * Sets the uuid of this report instance.
+	 *
+	 * @param uuid the uuid of this report instance
+	 */
+	@Override
+	public void setUuid(String uuid);
+
+	/**
 	 * Returns the report instance ID of this report instance.
 	 *
 	 * @return the report instance ID of this report instance
@@ -79,6 +101,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @return the group ID of this report instance
 	 */
+	@Override
 	public long getGroupId();
 
 	/**
@@ -86,6 +109,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @param groupId the group ID of this report instance
 	 */
+	@Override
 	public void setGroupId(long groupId);
 
 	/**
@@ -93,6 +117,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @return the company ID of this report instance
 	 */
+	@Override
 	public long getCompanyId();
 
 	/**
@@ -100,6 +125,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @param companyId the company ID of this report instance
 	 */
+	@Override
 	public void setCompanyId(long companyId);
 
 	/**
@@ -107,6 +133,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @return the user ID of this report instance
 	 */
+	@Override
 	public long getUserId();
 
 	/**
@@ -114,6 +141,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @param userId the user ID of this report instance
 	 */
+	@Override
 	public void setUserId(long userId);
 
 	/**
@@ -122,6 +150,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 * @return the user uuid of this report instance
 	 * @throws SystemException if a system exception occurred
 	 */
+	@Override
 	public String getUserUuid() throws SystemException;
 
 	/**
@@ -129,6 +158,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @param userUuid the user uuid of this report instance
 	 */
+	@Override
 	public void setUserUuid(String userUuid);
 
 	/**
@@ -137,6 +167,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 * @return the user name of this report instance
 	 */
 	@AutoEscape
+	@Override
 	public String getUserName();
 
 	/**
@@ -144,13 +175,31 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @param userName the user name of this report instance
 	 */
+	@Override
 	public void setUserName(String userName);
+
+	/**
+	 * Returns the create date of this report instance.
+	 *
+	 * @return the create date of this report instance
+	 */
+	@Override
+	public Date getCreateDate();
+
+	/**
+	 * Sets the create date of this report instance.
+	 *
+	 * @param createDate the create date of this report instance
+	 */
+	@Override
+	public void setCreateDate(Date createDate);
 
 	/**
 	 * Returns the modified date of this report instance.
 	 *
 	 * @return the modified date of this report instance
 	 */
+	@Override
 	public Date getModifiedDate();
 
 	/**
@@ -158,6 +207,7 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 *
 	 * @param modifiedDate the modified date of this report instance
 	 */
+	@Override
 	public void setModifiedDate(Date modifiedDate);
 
 	/**
@@ -174,6 +224,206 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 	 * @param reportKey the report key of this report instance
 	 */
 	public void setReportKey(String reportKey);
+
+	/**
+	 * Returns the name of this report instance.
+	 *
+	 * @return the name of this report instance
+	 */
+	public String getName();
+
+	/**
+	 * Returns the localized name of this report instance in the language. Uses the default language if no localization exists for the requested language.
+	 *
+	 * @param locale the locale of the language
+	 * @return the localized name of this report instance
+	 */
+	@AutoEscape
+	public String getName(Locale locale);
+
+	/**
+	 * Returns the localized name of this report instance in the language, optionally using the default language if no localization exists for the requested language.
+	 *
+	 * @param locale the local of the language
+	 * @param useDefault whether to use the default language if no localization exists for the requested language
+	 * @return the localized name of this report instance. If <code>useDefault</code> is <code>false</code> and no localization exists for the requested language, an empty string will be returned.
+	 */
+	@AutoEscape
+	public String getName(Locale locale, boolean useDefault);
+
+	/**
+	 * Returns the localized name of this report instance in the language. Uses the default language if no localization exists for the requested language.
+	 *
+	 * @param languageId the ID of the language
+	 * @return the localized name of this report instance
+	 */
+	@AutoEscape
+	public String getName(String languageId);
+
+	/**
+	 * Returns the localized name of this report instance in the language, optionally using the default language if no localization exists for the requested language.
+	 *
+	 * @param languageId the ID of the language
+	 * @param useDefault whether to use the default language if no localization exists for the requested language
+	 * @return the localized name of this report instance
+	 */
+	@AutoEscape
+	public String getName(String languageId, boolean useDefault);
+
+	@AutoEscape
+	public String getNameCurrentLanguageId();
+
+	@AutoEscape
+	public String getNameCurrentValue();
+
+	/**
+	 * Returns a map of the locales and localized names of this report instance.
+	 *
+	 * @return the locales and localized names of this report instance
+	 */
+	public Map<Locale, String> getNameMap();
+
+	/**
+	 * Sets the name of this report instance.
+	 *
+	 * @param name the name of this report instance
+	 */
+	public void setName(String name);
+
+	/**
+	 * Sets the localized name of this report instance in the language.
+	 *
+	 * @param name the localized name of this report instance
+	 * @param locale the locale of the language
+	 */
+	public void setName(String name, Locale locale);
+
+	/**
+	 * Sets the localized name of this report instance in the language, and sets the default locale.
+	 *
+	 * @param name the localized name of this report instance
+	 * @param locale the locale of the language
+	 * @param defaultLocale the default locale
+	 */
+	public void setName(String name, Locale locale, Locale defaultLocale);
+
+	public void setNameCurrentLanguageId(String languageId);
+
+	/**
+	 * Sets the localized names of this report instance from the map of locales and localized names.
+	 *
+	 * @param nameMap the locales and localized names of this report instance
+	 */
+	public void setNameMap(Map<Locale, String> nameMap);
+
+	/**
+	 * Sets the localized names of this report instance from the map of locales and localized names, and sets the default locale.
+	 *
+	 * @param nameMap the locales and localized names of this report instance
+	 * @param defaultLocale the default locale
+	 */
+	public void setNameMap(Map<Locale, String> nameMap, Locale defaultLocale);
+
+	/**
+	 * Returns the description of this report instance.
+	 *
+	 * @return the description of this report instance
+	 */
+	public String getDescription();
+
+	/**
+	 * Returns the localized description of this report instance in the language. Uses the default language if no localization exists for the requested language.
+	 *
+	 * @param locale the locale of the language
+	 * @return the localized description of this report instance
+	 */
+	@AutoEscape
+	public String getDescription(Locale locale);
+
+	/**
+	 * Returns the localized description of this report instance in the language, optionally using the default language if no localization exists for the requested language.
+	 *
+	 * @param locale the local of the language
+	 * @param useDefault whether to use the default language if no localization exists for the requested language
+	 * @return the localized description of this report instance. If <code>useDefault</code> is <code>false</code> and no localization exists for the requested language, an empty string will be returned.
+	 */
+	@AutoEscape
+	public String getDescription(Locale locale, boolean useDefault);
+
+	/**
+	 * Returns the localized description of this report instance in the language. Uses the default language if no localization exists for the requested language.
+	 *
+	 * @param languageId the ID of the language
+	 * @return the localized description of this report instance
+	 */
+	@AutoEscape
+	public String getDescription(String languageId);
+
+	/**
+	 * Returns the localized description of this report instance in the language, optionally using the default language if no localization exists for the requested language.
+	 *
+	 * @param languageId the ID of the language
+	 * @param useDefault whether to use the default language if no localization exists for the requested language
+	 * @return the localized description of this report instance
+	 */
+	@AutoEscape
+	public String getDescription(String languageId, boolean useDefault);
+
+	@AutoEscape
+	public String getDescriptionCurrentLanguageId();
+
+	@AutoEscape
+	public String getDescriptionCurrentValue();
+
+	/**
+	 * Returns a map of the locales and localized descriptions of this report instance.
+	 *
+	 * @return the locales and localized descriptions of this report instance
+	 */
+	public Map<Locale, String> getDescriptionMap();
+
+	/**
+	 * Sets the description of this report instance.
+	 *
+	 * @param description the description of this report instance
+	 */
+	public void setDescription(String description);
+
+	/**
+	 * Sets the localized description of this report instance in the language.
+	 *
+	 * @param description the localized description of this report instance
+	 * @param locale the locale of the language
+	 */
+	public void setDescription(String description, Locale locale);
+
+	/**
+	 * Sets the localized description of this report instance in the language, and sets the default locale.
+	 *
+	 * @param description the localized description of this report instance
+	 * @param locale the locale of the language
+	 * @param defaultLocale the default locale
+	 */
+	public void setDescription(String description, Locale locale,
+		Locale defaultLocale);
+
+	public void setDescriptionCurrentLanguageId(String languageId);
+
+	/**
+	 * Sets the localized descriptions of this report instance from the map of locales and localized descriptions.
+	 *
+	 * @param descriptionMap the locales and localized descriptions of this report instance
+	 */
+	public void setDescriptionMap(Map<Locale, String> descriptionMap);
+
+	/**
+	 * Sets the localized descriptions of this report instance from the map of locales and localized descriptions, and sets the default locale.
+	 *
+	 * @param descriptionMap the locales and localized descriptions of this report instance
+	 * @param defaultLocale the default locale
+	 */
+	public void setDescriptionMap(Map<Locale, String> descriptionMap,
+		Locale defaultLocale);
 
 	/**
 	 * Returns the class name of this report instance.
@@ -251,6 +501,15 @@ public interface ReportInstanceModel extends BaseModel<ReportInstance> {
 
 	@Override
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
+
+	public String[] getAvailableLanguageIds();
+
+	public String getDefaultLanguageId();
+
+	public void prepareLocalizedFieldsForImport() throws LocaleException;
+
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException;
 
 	@Override
 	public Object clone();

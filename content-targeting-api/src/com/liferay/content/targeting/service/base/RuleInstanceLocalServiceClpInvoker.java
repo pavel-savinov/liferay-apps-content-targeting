@@ -122,50 +122,50 @@ public class RuleInstanceLocalServiceClpInvoker {
 				"com.liferay.content.targeting.model.RuleInstance"
 			};
 
-		_methodName68 = "getBeanIdentifier";
+		_methodName86 = "getBeanIdentifier";
 
-		_methodParameterTypes68 = new String[] {  };
+		_methodParameterTypes86 = new String[] {  };
 
-		_methodName69 = "setBeanIdentifier";
+		_methodName87 = "setBeanIdentifier";
 
-		_methodParameterTypes69 = new String[] { "java.lang.String" };
+		_methodParameterTypes87 = new String[] { "java.lang.String" };
 
-		_methodName75 = "addRuleInstance";
+		_methodName93 = "addRuleInstance";
 
-		_methodParameterTypes75 = new String[] {
+		_methodParameterTypes93 = new String[] {
 				"long", "java.lang.String", "long", "java.lang.String",
 				"com.liferay.portal.service.ServiceContext"
 			};
 
-		_methodName76 = "deleteRuleInstance";
+		_methodName94 = "deleteRuleInstance";
 
-		_methodParameterTypes76 = new String[] { "long" };
+		_methodParameterTypes94 = new String[] { "long" };
 
-		_methodName77 = "deleteRuleInstance";
+		_methodName95 = "deleteRuleInstance";
 
-		_methodParameterTypes77 = new String[] {
+		_methodParameterTypes95 = new String[] {
 				"com.liferay.content.targeting.model.RuleInstance"
 			};
 
-		_methodName78 = "getRuleInstances";
+		_methodName96 = "getRuleInstances";
 
-		_methodParameterTypes78 = new String[] { "long" };
+		_methodParameterTypes96 = new String[] { "long" };
 
-		_methodName79 = "getRuleInstances";
+		_methodName97 = "getRuleInstances";
 
-		_methodParameterTypes79 = new String[] { "java.lang.String", "long" };
+		_methodParameterTypes97 = new String[] { "java.lang.String", "long" };
 
-		_methodName80 = "getRuleInstancesCount";
+		_methodName98 = "getRuleInstancesCount";
 
-		_methodParameterTypes80 = new String[] { "long" };
+		_methodParameterTypes98 = new String[] { "long" };
 
-		_methodName81 = "getRuleInstancesCount";
+		_methodName99 = "getRuleInstancesCount";
 
-		_methodParameterTypes81 = new String[] { "java.lang.String", "long" };
+		_methodParameterTypes99 = new String[] { "java.lang.String", "long" };
 
-		_methodName82 = "updateRuleInstance";
+		_methodName100 = "updateRuleInstance";
 
-		_methodParameterTypes82 = new String[] {
+		_methodParameterTypes100 = new String[] {
 				"long", "java.lang.String",
 				"com.liferay.portal.service.ServiceContext"
 			};
@@ -284,20 +284,20 @@ public class RuleInstanceLocalServiceClpInvoker {
 			return RuleInstanceLocalServiceUtil.updateRuleInstance((com.liferay.content.targeting.model.RuleInstance)arguments[0]);
 		}
 
-		if (_methodName68.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes68, parameterTypes)) {
+		if (_methodName86.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes86, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.getBeanIdentifier();
 		}
 
-		if (_methodName69.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes69, parameterTypes)) {
+		if (_methodName87.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes87, parameterTypes)) {
 			RuleInstanceLocalServiceUtil.setBeanIdentifier((java.lang.String)arguments[0]);
 
 			return null;
 		}
 
-		if (_methodName75.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes75, parameterTypes)) {
+		if (_methodName93.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes93, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.addRuleInstance(((Long)arguments[0]).longValue(),
 				(java.lang.String)arguments[1],
 				((Long)arguments[2]).longValue(),
@@ -305,40 +305,40 @@ public class RuleInstanceLocalServiceClpInvoker {
 				(com.liferay.portal.service.ServiceContext)arguments[4]);
 		}
 
-		if (_methodName76.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes76, parameterTypes)) {
+		if (_methodName94.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes94, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.deleteRuleInstance(((Long)arguments[0]).longValue());
 		}
 
-		if (_methodName77.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes77, parameterTypes)) {
+		if (_methodName95.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes95, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.deleteRuleInstance((com.liferay.content.targeting.model.RuleInstance)arguments[0]);
 		}
 
-		if (_methodName78.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes78, parameterTypes)) {
+		if (_methodName96.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes96, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.getRuleInstances(((Long)arguments[0]).longValue());
 		}
 
-		if (_methodName79.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes79, parameterTypes)) {
+		if (_methodName97.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes97, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.getRuleInstances((java.lang.String)arguments[0],
 				((Long)arguments[1]).longValue());
 		}
 
-		if (_methodName80.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes80, parameterTypes)) {
+		if (_methodName98.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes98, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.getRuleInstancesCount(((Long)arguments[0]).longValue());
 		}
 
-		if (_methodName81.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes81, parameterTypes)) {
+		if (_methodName99.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes99, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.getRuleInstancesCount((java.lang.String)arguments[0],
 				((Long)arguments[1]).longValue());
 		}
 
-		if (_methodName82.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes82, parameterTypes)) {
+		if (_methodName100.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes100, parameterTypes)) {
 			return RuleInstanceLocalServiceUtil.updateRuleInstance(((Long)arguments[0]).longValue(),
 				(java.lang.String)arguments[1],
 				(com.liferay.portal.service.ServiceContext)arguments[2]);
@@ -387,24 +387,24 @@ public class RuleInstanceLocalServiceClpInvoker {
 	private String[] _methodParameterTypes18;
 	private String _methodName19;
 	private String[] _methodParameterTypes19;
-	private String _methodName68;
-	private String[] _methodParameterTypes68;
-	private String _methodName69;
-	private String[] _methodParameterTypes69;
-	private String _methodName75;
-	private String[] _methodParameterTypes75;
-	private String _methodName76;
-	private String[] _methodParameterTypes76;
-	private String _methodName77;
-	private String[] _methodParameterTypes77;
-	private String _methodName78;
-	private String[] _methodParameterTypes78;
-	private String _methodName79;
-	private String[] _methodParameterTypes79;
-	private String _methodName80;
-	private String[] _methodParameterTypes80;
-	private String _methodName81;
-	private String[] _methodParameterTypes81;
-	private String _methodName82;
-	private String[] _methodParameterTypes82;
+	private String _methodName86;
+	private String[] _methodParameterTypes86;
+	private String _methodName87;
+	private String[] _methodParameterTypes87;
+	private String _methodName93;
+	private String[] _methodParameterTypes93;
+	private String _methodName94;
+	private String[] _methodParameterTypes94;
+	private String _methodName95;
+	private String[] _methodParameterTypes95;
+	private String _methodName96;
+	private String[] _methodParameterTypes96;
+	private String _methodName97;
+	private String[] _methodParameterTypes97;
+	private String _methodName98;
+	private String[] _methodParameterTypes98;
+	private String _methodName99;
+	private String[] _methodParameterTypes99;
+	private String _methodName100;
+	private String[] _methodParameterTypes100;
 }
